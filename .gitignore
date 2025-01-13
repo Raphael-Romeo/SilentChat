@@ -1,0 +1,18 @@
+# Django files 
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+# Env folder 
+.env
+
+# Database files
+db.sqlite3
+
+
+# Mac files
+.DS_Store
+.AppleDouble
+.LSOverride
