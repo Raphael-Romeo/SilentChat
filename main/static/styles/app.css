@@ -6,27 +6,65 @@ body, .application-wrapper{
 }
 
 .application-wrapper{
+	background:var(--primary-color);
 	position:relative;
-	display:flex; /* Application wrapper will now hold side panel and page-view horizontally */
-	--primary-color: #31394d;
-	--primary-color-transparent: #31394df0;
-	--secondary-color: #3a4259;
-	--accent-color: #1a2239;
-	--side-panel-width: 0px;
+	--primary-color: black;
+	--secondary-color: #151515;
+	/*--secondary-color: #252525; Brighter secondary so I can see better */
+	--side-panel-width: 0px; /* for a smaller version set this to 64px */
 	--side-panel-extended-width: 350px;
+	--side-panel-compact-width: 76px;
+	--side-panel-margin: 0px;
 	--bottom-panel-height: 64px;
+	--bottom-panel-hidden: 0;
+	--bottom-panel-visible: 1;
+	--side-panel-opacity: 50%;
+	overflow-y:hidden;
+	min-width:640px;
+	min-height:320px;
 }
 
-.application-wrapper.side-panel-extended{
-	--side-panel-width: 350px;
+.h-wrapper{
+	display:flex;
+	padding:10px;
+	width:calc(100% - 20px);
+	height:calc(100% - 20px - var(--bottom-panel-height) * var(--bottom-panel-visible));
+	transition:height 0.2s ease;
+	position:relative;
+}
+
+.material-symbols-outlined{color:lightgray;font-size:24px;cursor:pointer;user-select:none;transition:color 0.2s ease, transform 0.2s ease;}
+
+.material-symbols-outlined:hover{color:white;transform:scale(1.05)}
+
+.button-icon{height:24px}
+
+.application-wrapper.side-panel-visible{
+	--side-panel-width: var(--side-panel-extended-width);
+	--side-panel-margin: 10px;
+	--side-panel-opacity: 100%;
+}
+
+.application-wrapper.side-panel-visible.side-panel-compact{
+	--side-panel-width: var(--side-panel-compact-width);
+	--side-panel-margin: 10px;
+	--side-panel-extended-width:180px;
+}
+
+.application-wrapper.bottom-panel-hidden{
+	--bottom-panel-hidden: 1;
+	--bottom-panel-visible: 0;
 }
 
 .side-panel-wrapper{
 	overflow:hidden;
-	height:100vh;
+	height:100%;
 	width:var(--side-panel-width);
-	background:var(--primary-color);
-	transition: transform 0.2s ease, width 0.2s ease;
+	background:var(--secondary-color);
+	transition: transform 0.2s ease, width 0.2s ease, margin 0.2s ease, opacity 0.2s ease;
+	border-radius:10px;
+	margin-right:var(--side-panel-margin);
+	opacity:var(--side-panel-opacity);
 }
 
 .side-panel{
@@ -34,27 +72,113 @@ body, .application-wrapper{
 }
 
 .page-view{
-	width:calc(100% - var(--side-panel-width));
-	height:100%;
+	border-radius:10px;
+	width:calc(100% - var(--side-panel-width) - var(--side-panel-margin) - 20px);
+	height:calc(100% - 20px);
+	transition:width 0.2s ease, height 0.2s ease, right 0.2s ease, top 0.2s ease, border-radius 0.2s ease, background 0.2s ease;
 	background:var(--secondary-color);
-	transition: width 0.2s ease;
-	backdrop-filter:blur(10px);
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+
+.page-view-full-screen{
+	--side-panel-width: 0px;
+	--side-panel-extended-width: 0px;
+	--side-panel-compact-width: 0px;
+}.page-view-full-screen > .h-wrapper > .page-view{
+	width:100%;
+	right:0px;
+	top:0px;
+	border-radius:0px;
+	background:var(--primary-color);
+	height:calc(100% - 10px);
+}.page-view-full-screen > .bottom-panel > .user-details-wrapper{margin-right:0px;opacity:0%;}
+ .page-view-full-screen > .bottom-panel > .message-input-wrapper{width:calc(100% - 20px);transform:translateY(5px)}
+.chat-page{
+
 }
 
 .bottom-panel{
 	width: 100%;
 	height: var(--bottom-panel-height);
 	transition: transform 0.2s ease;
-	position:absolute;
-	bottom:0;
 	background:var(--primary-color-transparent);
 	border-top:1px solid var(--accent-color);
+	display:flex;
+	transform:translateY(calc(var(--bottom-panel-hidden) * 100%));
 }
 
-.bottom-panel.hidden{
-	transform:translateY(100%);
+.user-details-wrapper{
+	padding-top: 2.5px;
+	height:calc(100% - 25px);
+	width:var(--side-panel-extended-width);
+	display:flex;
+	margin-right: 10px;
+	transition:opacity 0.2s ease, margin 0.2s ease, width 0.2s ease;
 }
 
-.chat-zone{
+.user-details-card{
+	width:50%;
+}
+
+.user-details-actions{
+	padding:10px;
+	width:calc(50% - 20px);
+	display:flex;
+	align-items:center;
+	justify-content: flex-end;
+}
+
+.chat-page{
 	padding-bottom: calc(var(--bottom-panel-height) + 10px);
+	width:100%;
+	height:100%;
 }
+
+.chat-header{
+	background:var(--secondary-color-transparent);
+	backdrop-filter:blur(10px);
+}
+
+.message-input-wrapper{
+	height:100%;
+	width:calc(100% - var(--side-panel-extended-width) - 30px);
+	margin-left:10px;
+	display:flex;
+	justify-content:center;
+	transition:width 0.2s ease, transform 0.2s ease;
+	position:relative;
+}
+
+.message-input-box{
+	background:var(--secondary-color);
+	width:calc(100% - 20px);
+	max-width:1024px;
+	height:calc(100% - 25px);
+	opacity:90%;
+	transition:opacity 0.2s ease, transform 0.2s ease;
+	border-radius:10px;
+	transform:translateY(2.5px);
+	display:flex;
+	align-items:center;
+	padding-left:10px;
+	padding-right:10px;
+	gap:10px;
+	position:absolute;
+	bottom:25px;
+}
+
+.message-input-box:has(input.message-box:focus){opacity:100%;transform:translateY(0px);}
+
+.message-input-wrapper:hover > .message-input-box, .message-input-box-focused{
+	opacity:100%;
+	transform:translateY(0px);
+}
+
+.message-input-box-disabled{
+	opacity:0%;
+	transform:translate-y(45%);
+}
+
+input.message-box{background:transparent;width:100%;color:white;height:100%;outline:none;border:none;}
