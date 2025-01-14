@@ -12,7 +12,7 @@ body, .application-wrapper{
 	--secondary-color: #151515;
 	/*--secondary-color: #252525; Brighter secondary so I can see better */
 	--side-panel-width: 0px; /* for a smaller version set this to 64px */
-	--side-panel-extended-width: 350px;
+	--side-panel-extended-width: 180px;
 	--side-panel-compact-width: 76px;
 	--side-panel-margin: 0px;
 	--bottom-panel-height: 64px;
@@ -33,22 +33,24 @@ body, .application-wrapper{
 	position:relative;
 }
 
-.material-symbols-outlined{color:lightgray;font-size:24px;cursor:pointer;user-select:none;transition:color 0.2s ease, transform 0.2s ease;}
+.material-symbols-outlined{color:white;font-size:24px;user-select:none;transition:color 0.2s ease, transform 0.2s ease;}
 
-.material-symbols-outlined:hover{color:white;transform:scale(1.05)}
+.button-icon > .material-symbols-outlined{cursor:pointer;color:lightgray}
+.button-icon > .material-symbols-outlined:hover{color:white;transform:scale(1.05)}
 
 .button-icon{height:24px}
 
 .application-wrapper.side-panel-visible{
+	--side-panel-extended-width: 360px;
 	--side-panel-width: var(--side-panel-extended-width);
 	--side-panel-margin: 10px;
 	--side-panel-opacity: 100%;
 }
 
 .application-wrapper.side-panel-visible.side-panel-compact{
+	--side-panel-extended-width:180px;
 	--side-panel-width: var(--side-panel-compact-width);
 	--side-panel-margin: 10px;
-	--side-panel-extended-width:180px;
 }
 
 .application-wrapper.bottom-panel-hidden{
@@ -65,6 +67,28 @@ body, .application-wrapper{
 	border-radius:10px;
 	margin-right:var(--side-panel-margin);
 	opacity:var(--side-panel-opacity);
+	position:relative;
+}
+
+.side-panel-drag-handle{
+	opacity:0%;
+	transition:opacity 0.2s ease;
+	cursor: e-resize;
+	width:10px;
+	position:absolute;
+	height:calc(100% - 20px);
+	top:10px;
+	background:rgba(255,255,255,0.05);
+	left:-10px;
+	display:flex;
+	align-items:center;
+	justify-content: center;
+	overflow:hidden;
+	border-radius:5px;
+}
+
+.side-panel-drag-handle:hover{
+	opacity:100%;
 }
 
 .side-panel{
@@ -82,7 +106,7 @@ body, .application-wrapper{
 	top:10px;
 }
 
-.page-view-full-screen{
+.application-wrapper.page-view-full-screen{
 	--side-panel-width: 0px;
 	--side-panel-extended-width: 0px;
 	--side-panel-compact-width: 0px;
@@ -116,15 +140,28 @@ body, .application-wrapper{
 	display:flex;
 	margin-right: 10px;
 	transition:opacity 0.2s ease, margin 0.2s ease, width 0.2s ease;
+	overflow:hidden;
 }
 
 .user-details-card{
-	width:50%;
+	margin-left:10px;
+	width:calc(100% - 54px);
+	display:flex;
+	align-items:center;padding:10px;gap:10px;
+}
+
+.user-name{
+	color: white;
+    font-family: arial;
+    font-size: 16px;
+    font-weight: 100;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+	user-select:none;
 }
 
 .user-details-actions{
-	padding:10px;
-	width:calc(50% - 20px);
 	display:flex;
 	align-items:center;
 	justify-content: flex-end;
@@ -154,7 +191,6 @@ body, .application-wrapper{
 .message-input-box{
 	background:var(--secondary-color);
 	width:calc(100% - 20px);
-	max-width:1024px;
 	height:calc(100% - 25px);
 	opacity:90%;
 	transition:opacity 0.2s ease, transform 0.2s ease;
@@ -169,7 +205,7 @@ body, .application-wrapper{
 	bottom:25px;
 }
 
-.message-input-box:has(input.message-box:focus){opacity:100%;transform:translateY(0px);}
+.message-input-box:has(textarea.message-box:not(:placeholder-shown)), .message-input-box:has(textarea.message-box:focus){opacity:100%;transform:translateY(0px);}
 
 .message-input-wrapper:hover > .message-input-box, .message-input-box-focused{
 	opacity:100%;
@@ -181,4 +217,18 @@ body, .application-wrapper{
 	transform:translate-y(45%);
 }
 
-input.message-box{background:transparent;width:100%;color:white;height:100%;outline:none;border:none;}
+textarea.message-box{
+	background:transparent;
+	width:100%;
+	color:white;
+	height:100%;
+	outline:none;
+	border:none;
+	font-size:16px;
+	font-family:arial;
+	padding-top:21px;
+	resize: none;
+	backface-visibility: hidden;
+	transform:translateZ(0) perspective(1px);
+	-webkit-font-smoothing: subpixel-antialiased;
+}
