@@ -5,24 +5,25 @@
         <title> SilentChat </title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,300,0,-25" />
         <link rel="stylesheet" href="/static/styles/app.css"/>
+        <script defer src="/static/scripts/app.js"></script>
     </head>
     <body>
-        <div class="application-wrapper side-panel-visible">
+        <div id="application-wrapper" class="application-wrapper side-panel-visible">
             <div class="h-wrapper">
-                <div class="side-panel-wrapper"> 
+                <div id="side-panel-wrapper" class="side-panel-wrapper"> 
                     <div class="side-panel">
 
                     </div>
                 </div>
-                <div class="page-view">
-                    <div class="side-panel-drag-handle"><span class="material-symbols-outlined">drag_indicator</span></div>
+                <div id="page-view" class="page-view">
+                    <div id="side-panel-drag-handle" class="side-panel-drag-handle"><span class="material-symbols-outlined">drag_indicator</span></div>
                     <div class="page-view-transition"></div>
                     <div class="chat-page"></div>
                     <!-- Other page types here -->
                 </div>
             </div>
             <div class="bottom-panel">
-                <div class="user-details-wrapper">
+                <div id="user-details-wrapper" class="user-details-wrapper">
                     <div class="user-details-card">
                         <span class="material-symbols-outlined">person</span>
                         <div class="user-name">random-user123123</div>
@@ -34,7 +35,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="message-input-wrapper">
+                <div id="message-input-wrapper" class="message-input-wrapper">
                     <div class="message-input-box">
                         <div class="embed-button button-icon"><span class="material-symbols-outlined">add_circle</span></div>
                         <textarea class="message-box" placeholder="Send message to user" name="message-box" id="message-box" rows="1" resizeable="false"></textarea>

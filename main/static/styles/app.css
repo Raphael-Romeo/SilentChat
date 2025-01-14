@@ -87,7 +87,7 @@ body, .application-wrapper{
 	border-radius:5px;
 }
 
-.side-panel-drag-handle:hover{
+.side-panel-drag-handle:hover, .side-panel-drag-handle.held{
 	opacity:100%;
 }
 
@@ -205,7 +205,10 @@ body, .application-wrapper{
 	bottom:25px;
 }
 
-.message-input-box:has(textarea.message-box:not(:placeholder-shown)), .message-input-box:has(textarea.message-box:focus){opacity:100%;transform:translateY(0px);}
+.message-input-box:has(textarea.message-box:not(:placeholder-shown)), .message-input-box:has(textarea.message-box:focus){
+	opacity:100%;
+	transform:translateY(0px);
+}
 
 .message-input-wrapper:hover > .message-input-box, .message-input-box-focused{
 	opacity:100%;
@@ -216,6 +219,8 @@ body, .application-wrapper{
 	opacity:0%;
 	transform:translate-y(45%);
 }
+
+
 
 textarea.message-box{
 	background:transparent;
