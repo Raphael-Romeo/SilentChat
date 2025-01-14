@@ -1,8 +1,60 @@
 *{padding:0;margin:0}
 
-body{
-	width:100%;
-	height:100vh;
+body, .application-wrapper{
+	width: 100%;
+	height: 100vh;
 }
 
-.side-pannel{width:200px;height:100vh;background:black;}
+.application-wrapper{
+	position:relative;
+	display:flex; /* Application wrapper will now hold side panel and page-view horizontally */
+	--primary-color: #31394d;
+	--primary-color-transparent: #31394df0;
+	--secondary-color: #3a4259;
+	--accent-color: #1a2239;
+	--side-panel-width: 0px;
+	--side-panel-extended-width: 350px;
+	--bottom-panel-height: 64px;
+}
+
+.application-wrapper.side-panel-extended{
+	--side-panel-width: 350px;
+}
+
+.side-panel-wrapper{
+	overflow:hidden;
+	height:100vh;
+	width:var(--side-panel-width);
+	background:var(--primary-color);
+	transition: transform 0.2s ease, width 0.2s ease;
+}
+
+.side-panel{
+	min-width:var(--side-panel-extended-width);
+}
+
+.page-view{
+	width:calc(100% - var(--side-panel-width));
+	height:100%;
+	background:var(--secondary-color);
+	transition: width 0.2s ease;
+	backdrop-filter:blur(10px);
+}
+
+.bottom-panel{
+	width: 100%;
+	height: var(--bottom-panel-height);
+	transition: transform 0.2s ease;
+	position:absolute;
+	bottom:0;
+	background:var(--primary-color-transparent);
+	border-top:1px solid var(--accent-color);
+}
+
+.bottom-panel.hidden{
+	transform:translateY(100%);
+}
+
+.chat-zone{
+	padding-bottom: calc(var(--bottom-panel-height) + 10px);
+}
