@@ -2,23 +2,43 @@
  <html>
     <head>
         <meta charset="utf-8">
-        <title> </title>
-		<link rel="stylesheet "href="/static/styles/app.css"/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=search" />
+        <title> SilentChat </title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,300,0,-25" />
+        <link rel="stylesheet" href="/static/styles/app.css"/>
     </head>
     <body>
-        <div class="application-wrapper side-panel-extended">
-            <div class="side-panel-wrapper"> 
-                <div class="side-panel">
+        <div class="application-wrapper side-panel-visible">
+            <div class="h-wrapper">
+                <div class="side-panel-wrapper"> 
+                    <div class="side-panel">
 
+                    </div>
                 </div>
-            </div>
-            <div class="page-view">
-                
+                <div class="page-view">
+                    <div class="page-view-transition"></div>
+                    <div class="chat-page"></div>
+                    <!-- Other page types here -->
+                </div>
             </div>
             <div class="bottom-panel">
                 <div class="user-details-wrapper">
-
+                    <div class="user-details-card">
+                        <div class="user-name"></div>
+                        <div class="user-full-name"></div>
+                    </div>
+                    <div class="user-details-actions">
+                        <div class="settings button-icon">
+                            <span class="material-symbols-outlined">settings</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-input-wrapper">
+                    <div class="message-input-box">
+                        <div class="embed-button button-icon"><span class="material-symbols-outlined">add_circle</span></div>
+                        <input class="message-box" placeholder="Send message to user" type="text" name="message-box" id="message-box">
+                        <div class="emoji-button button-icon"><span class="material-symbols-outlined">mood</span></div>
+                        <div class="send button-icon"><span class="material-symbols-outlined">send</span></div>
+                    </div>
                 </div>
             </div>
         </div>
