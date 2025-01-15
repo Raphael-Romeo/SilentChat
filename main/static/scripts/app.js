@@ -105,24 +105,31 @@ function set_side_panel_fullscreen(b){
 }
 
 function set_side_panel_width(c){
-    if (c < minimum_side_panel_width || compact_side_panel_mode){
-        if (c < 10){
-            application.style.setProperty('--side-panel-extended-width', 0 + "px");
+    if (c < minimum_side_panel_width || compact_side_panel_mode || app_fullscreen){
+        if (c < 30){
+            application.style.setProperty('--side-panel-extended-width', null);
             current_side_panel_size = 0;
-            release_mouse_down_side_panel_drag_handle();
+            //release_mouse_down_side_panel_drag_handle();
             set_side_panel_fullscreen(true);
             return;
-        }else if (c < 74 + 50 && !compact_side_panel_mode){
+        }else if (c >= 30 && app_fullscreen){
+            set_side_panel_fullscreen(false);
+            enable_animations(true);
+            application.style.setProperty('--side-panel-extended-width', minimum_side_panel_width + "px");
+            current_side_panel_size = 76;
+            set_side_panel_compact(true);
+            return;
+            set_side_panel_fullscreen(false);
+        }else if (c < 76 + 50 && !compact_side_panel_mode){
             enable_animations(true);
             compact_side_panel_mode = true;
             application.style.setProperty('--side-panel-extended-width', minimum_side_panel_width + "px");
-            current_side_panel_size = 74;
+            current_side_panel_size = 76;
             set_side_panel_compact(true);
             return;
-        }else if (c >= 74 + 50 && compact_side_panel_mode){
+        }else if (c >= 76 + 50 && compact_side_panel_mode){
             enable_animations(true);
             set_side_panel_compact(false);
-			setTimeout(function(){enable_animations(false)}, 200);
             compact_side_panel_mode = false;
             current_side_panel_size = minimum_side_panel_width;
             application.style.setProperty('--side-panel-extended-width', minimum_side_panel_width + "px");
