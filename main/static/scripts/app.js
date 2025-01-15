@@ -107,6 +107,7 @@ function set_side_panel_fullscreen(b){
 function set_side_panel_width(c){
     if (c < minimum_side_panel_width || compact_side_panel_mode || app_fullscreen){
         if (c < 30){
+            enable_animations(true);
             application.style.setProperty('--side-panel-extended-width', null);
             current_side_panel_size = 0;
             //release_mouse_down_side_panel_drag_handle();
