@@ -7,16 +7,14 @@ let minimum_side_panel_width = 215;
 let compact_side_panel_mode = false;
 let app_fullscreen = false;
 
-if (window.innerWidth < 800){
-    max_side_panel_width = 360;
-}else{
-    max_side_panel_width = window.innerWidth/3;
+max_side_panel_width = application.clientWidth/3;
+if (max_side_panel_width <= minimum_side_panel_width){
+    max_side_panel_width = minimum_side_panel_width;
 }
 
 let is_max_width = false;
 let mouse_down_side_panel_drag_handle = false;
 let current_side_panel_size = null;
-set_side_panel_width(360);
 
 if (current_side_panel_size > max_side_panel_width){
     current_side_panel_size = max_side_panel_width;
@@ -45,17 +43,16 @@ document.onmouseup = function(e){
 
 document.onmousemove = function(e){
     if (mouse_down_side_panel_drag_handle){
-        let delta = mouse_down_side_panel_drag_handle_initial_pos - e.x
-        set_side_panel_width(mouse_down_side_panel_drag_handle_initial_width - delta)
+        let delta = mouse_down_side_panel_drag_handle_initial_pos - e.x;
+        set_side_panel_width(mouse_down_side_panel_drag_handle_initial_width - delta);
     }
 }
 
 window.onresize = function(e){
     let new_size = null;
-    if (window.innerWidth > 640){
-        new_size = window.innerWidth/3;
-    }else{
-        new_size = 640/3;
+    new_size = application.clientWidth/3;
+    if (new_size <= minimum_side_panel_width){
+        new_size = minimum_side_panel_width;
     }
     max_side_panel_width = new_size;
     set_side_panel_width(current_side_panel_size);
@@ -104,8 +101,8 @@ function set_side_panel_fullscreen(b){
     }
 }
 
-function set_side_panel_width(c){
-    if (c < minimum_side_panel_width || compact_side_panel_mode || app_fullscreen){
+function set_side_panel_width(c, force=false){
+    if ((c < minimum_side_panel_width || compact_side_panel_mode || app_fullscreen) && !force){
         if (c < 30){
             enable_animations(true);
             application.style.setProperty('--side-panel-extended-width', null);
@@ -139,14 +136,15 @@ function set_side_panel_width(c){
             application.style.setProperty('--side-panel-extended-width', minimum_side_panel_width + "px");
         }
     }else if(c > max_side_panel_width){
-        if (!mouse_down_side_panel_drag_handle){
+        if (!mouse_down_side_panel_drag_handle && !force){
             enable_animations(false);
-            setTimeout(function(){enable_animations(true)}, 1);
         }
         current_side_panel_size = max_side_panel_width;
         application.style.setProperty('--side-panel-extended-width', max_side_panel_width + "px");
     }else{
-        enable_animations(false);
+        if (!force){
+            enable_animations(false);
+        }
         current_side_panel_size = c;
         application.style.setProperty('--side-panel-extended-width', c + "px");
     }
@@ -154,13 +152,57 @@ function set_side_panel_width(c){
 
 /* Textarea */
 
-document.querySelectorAll("textarea").forEach(function(textarea) {
-  textarea.style.height = textarea.scrollHeight - 20 + "px";
+function send_message(){
+    console.log(application_message_box.value);
+    application_message_box.value = "";
+}
 
-  textarea.addEventListener("input", function() {
+const application_message_box = document.getElementById("message-box");
+let shift_is_held = false;
+
+application_message_box.style.height = application_message_box.scrollHeight - 20 + "px";
+application_message_box.addEventListener("input", function() {
     this.style.height = "auto";
     this.style.height = this.scrollHeight + "px";
-  });
 });
 
-setTimeout(function(){application.classList.remove("bottom-panel-hidden")}, 200);
+application_message_box.onkeydown = function(e){
+    if (e.key == "Shift"){
+        shift_is_held = true;
+    }else if(e.key == "Enter"){
+        if (!shift_is_held){
+            send_message();
+            e.preventDefault();
+            application_message_box.style.height = "auto";
+            application_message_box.style.height = application_message_box.scrollHeight + "px";
+        }
+    }
+}
+
+application_message_box.onkeyup = function(e){
+    if (e.key == "Shift"){
+        shift_is_held = false;
+    }
+}
+
+/* page startup animation */
+set_side_panel_fullscreen(true);
+function load_page(){
+    set_side_panel_fullscreen(false);setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
+}
+setTimeout(load_page, 200);
+
+/* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
+/* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
+/* If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase.
+
+/* page startup animation */
+
+
+/* App navigation */
+
+function set_page_view(n){
+
+}
+
+/* App navigation */
