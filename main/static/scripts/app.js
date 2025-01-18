@@ -61,9 +61,9 @@ window.onresize = function(e){
 function enable_animations(b){
     if (!b){
         const animated_elements = [
-            "message-input-wrapper",
+            "message-controls-wrapper",
+            "message-controls",
             "user-details-wrapper",
-            "message-input-wrapper",
             "page-view",
             "side-panel-wrapper"
         ];
@@ -72,9 +72,9 @@ function enable_animations(b){
         }
     }else{
         const animated_elements = [
-            "message-input-wrapper",
+            "message-controls-wrapper",
+            "message-controls",
             "user-details-wrapper",
-            "message-input-wrapper",
             "page-view",
             "side-panel-wrapper"
         ];
@@ -117,7 +117,6 @@ function set_side_panel_width(c, force=false){
             current_side_panel_size = 76;
             set_side_panel_compact(true);
             return;
-            set_side_panel_fullscreen(false);
         }else if (c < 76 + 50 && !compact_side_panel_mode){
             enable_animations(true);
             compact_side_panel_mode = true;
@@ -154,18 +153,20 @@ function set_side_panel_width(c, force=false){
 
 const chat_page_message_container = document.getElementById("chat-page-message-container");
 const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
-const application_message_box_wrapper = document.getElementById("message-input-box");
+const application_message_box_wrapper = document.getElementById("message-controls");
 
 function parse_text_message(text){
     let message_element = document.createElement("div");
     message_element.classList.add("chat-page-message");
-    message_element.innerText = text;
-    let messageHTMLCode = message_element.innerHTML;
+    text = text.replaceAll(/^[  \n]+|[  \n]+$/g, "");
+    let messageHTMLCode = text;
     let newmessageHTMLCode = "";
     let inside = false;
     for (let i=0;i<messageHTMLCode.length;i++){
         let char = messageHTMLCode[i];
-        if (char == "*"){
+        if (char == "\n"){
+            newmessageHTMLCode += "<br>";
+        }else if (char == "*"){
             if (inside != false){
                 if (inside == "**"){
                     if (messageHTMLCode[i+1] == "*"){
@@ -194,34 +195,40 @@ function parse_text_message(text){
             newmessageHTMLCode += char;
         }
     }
+    console.log(newmessageHTMLCode);
     message_element.innerHTML = newmessageHTMLCode;
     return message_element;
 }
 
 function is_message_valid(text){
-    if (text.replaceAll(" ","").replaceAll("\n","") == ""){
-        return false;
+    if (text.replaceAll("\n","").replaceAll(" ","").replaceAll(" ","") != ""){
+        return true;
     }
-    return true;
+    return false;
 }
 
 function send_message(){
-    let message = application_message_box.value;
+    let message = application_message_input.innerText;
     if (is_message_valid(message)){
         chat_page_message_container.appendChild(parse_text_message(message));
-        application_message_box.value = "";
-        application_chat_page_wrapper.scrollTop = application_chat_page_wrapper.scrollHeight;
+        application_message_input.innerHTML = "";
+        application_chat_page_wrapper.scrollTo(0,application_chat_page_wrapper.scrollHeight);
         update_message_box_height();
     }
     return;
 }
 
 function update_message_box_height(){
+    if (application_message_input.innerText.replace("\n","") == ""){
+        application_message_input_wrapper.classList.add("empty");
+    }else{
+        application_message_input_wrapper.classList.remove("empty");
+    }
     let old_scroll_height = application.style.getPropertyValue('--message-box-height');
-    let at_bottom = parseInt(application_message_box.scrollTop) >= application_message_box.scrollHeight - application_message_box.clientHeight - 50;
-    application_message_box.style.height = "auto";
-    let new_scroll_height = application_message_box.scrollHeight - 20 + "px";
-    application_message_box.style.height = null;
+    let at_bottom = parseInt(application_message_input_wrapper.scrollTop) >= application_message_input_wrapper.scrollHeight - application_message_input_wrapper.clientHeight - 50;
+    application_message_input.style.height = "auto";
+    let new_scroll_height = application_message_input_wrapper.scrollHeight - 20 + "px";
+    application_message_input.style.height = null;
     application.style.setProperty('--message-box-height', new_scroll_height);
     if (old_scroll_height != new_scroll_height){
         let at_bottom_chat = parseInt(application_chat_page_wrapper.scrollTop) >= application_chat_page_wrapper.scrollHeight - application_chat_page_wrapper.clientHeight - 20;
@@ -231,19 +238,20 @@ function update_message_box_height(){
         }
 
         if (at_bottom){
-            application_message_box.scrollTop = application_message_box.scrollHeight;
+            application_message_input_wrapper.scrollTop = application_message_input_wrapper.scrollHeight;
         }else{
-            application_message_box.scrollTop += 20;
+            application_message_input_wrapper.scrollTop += 20;
         }
     }
 }
 
-const application_message_box = document.getElementById("message-box");
+const application_message_input = document.getElementById("message-input");
+const application_message_input_wrapper = document.getElementById("message-input-wrapper"); 
 let shift_is_held = false;
 
-application_message_box.addEventListener("input", update_message_box_height);
+application_message_input.addEventListener("input", update_message_box_height);
 
-application_message_box.onkeydown = function(e){
+application_message_input.onkeydown = function(e){
     if (e.key == "Shift"){
         shift_is_held = true;
     }else if(e.key == "Enter"){
@@ -254,7 +262,7 @@ application_message_box.onkeydown = function(e){
     }
 }
 
-application_message_box.onkeyup = function(e){
+application_message_input.onkeyup = function(e){
     if (e.key == "Shift"){
         shift_is_held = false;
     }
@@ -265,7 +273,7 @@ set_side_panel_fullscreen(true);
 function load_page(){
     set_side_panel_fullscreen(false);setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
 }
-setTimeout(load_page, 200);
+setTimeout(load_page, 600);
 
 /* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
 /* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.

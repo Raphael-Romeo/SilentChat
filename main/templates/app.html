@@ -9,17 +9,22 @@
     </head>
     <body>
         <div id="application-wrapper" class="application-wrapper side-panel-visible bottom-panel-hidden page-view-full-screen loading">
+            <div class="side-panel-hover-zone"></div>
             <div class="h-wrapper">
                 <div id="side-panel-wrapper" class="side-panel-wrapper"> 
                     <div class="side-panel">
-
                     </div>
                 </div>
                 <div id="page-view" class="page-view">
                     <div id="side-panel-drag-handle" class="side-panel-drag-handle"><span class="material-symbols-outlined">drag_indicator</span></div>
                     <div class="page-view-transition"></div>
                     <div class="chat-page-wrapper" id="chat-page-wrapper">
-                        <div class="chat-page-titlebar"> </div>
+                        <div class="chat-page-titlebar"> 
+                            <div class="chat-page-titlebar-content">
+                                <div class="titlebar-content-user-profile-picture"><img src="/static/images/woman_placeholder_profile_picture.webp"></div>
+                                <div class="titlebar-content-user-name">Mary Shepherd-Sunderland</div>
+                            </div>
+                        </div>
                         <div class="chat-page" id="chat-page">
                             <div class="chat-page-message-container" id="chat-page-message-container">
                             </div>
@@ -41,10 +46,13 @@
                         </div>
                     </div>
                 </div>
-                <div id="message-input-wrapper" class="message-input-wrapper">
-                    <div id="message-input-box" class="message-input-box">
+                <div id="message-controls-wrapper" class="message-controls-wrapper">
+                    <div id="message-controls" class="message-controls">
                         <div class="embed-button button-icon"><span class="material-symbols-outlined">add_circle</span></div>
-                        <textarea class="message-box" placeholder="Send message to user" name="message-box" id="message-box" rows="1" resizeable="false"></textarea>
+                        <div class="message-input-wrapper empty" id="message-input-wrapper">
+                            <div class="placeholdertext"> Send message to Mary Shepherd-Sunderland </div>
+                            <div contenteditable="true" class="message-input" placeholder="Send message to user" name="message-box" id="message-input" rows="1" resizeable="false"></div>
+                        </div>
                         <div class="emoji-button button-icon"><span class="material-symbols-outlined">mood</span></div>
                         <div class="send button-icon"><span class="material-symbols-outlined">send</span></div>
                     </div>
