@@ -223,7 +223,9 @@ function update_message_box_height(){
         let at_bottom_chat = parseInt(application_chat_page_wrapper.scrollTop) >= application_chat_page_wrapper.scrollHeight - application_chat_page_wrapper.clientHeight - 20;
         chat_page_message_container.style.paddingBottom = application_message_box_wrapper.clientHeight - 40 + "px";
         if (at_bottom_chat){
-            setTimeout(function(){application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: "smooth"});},100);
+            chat_page_message_container.style.transition = "none";
+            application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: "smooth"});
+            setTimeout(function(){chat_page_message_container.style.transition = null;},1);
         }
 
         if (at_bottom){

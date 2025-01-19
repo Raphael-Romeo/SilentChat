@@ -20,7 +20,7 @@
 	margin-bottom:10px;
 }
 
-*, html{
+html{
 	scroll-behavior: smooth !important;
 }
 
@@ -36,6 +36,7 @@ body, .application-wrapper{
 	--secondary-color: #111;
 	--secondary-color-transparent: #1119;
 	--secondary-color-transparent-identical-on-primary: #22222280;
+	--primary-color-transparent: #0008;
 	/*--secondary-color: #252525; Brighter secondary so I can see better */
 	--side-panel-width: 0px; /* for a smaller version set this to 64px */
 	--side-panel-extended-width: 215px;
@@ -48,6 +49,7 @@ body, .application-wrapper{
 	--message-box-height: 20px;
 	--chat-box-message-container-border-bottom-size: 0px;
 	--chat-title-bar-background: linear-gradient(180deg, var(--secondary-color), var(--secondary-color-transparent));
+	--chat-title-bar-padding-top: 0px;
 	overflow-y:hidden;
 	min-width:640px;
 	min-height:320px;
@@ -167,6 +169,7 @@ body, .application-wrapper{
 	--side-panel-opacity: 0%;
 	--chat-box-message-container-border-bottom-size: 60px;
 	--chat-title-bar-background: linear-gradient(180deg, var(--primary-color), transparent);
+	--chat-title-bar-padding-top: 10px;
 }.page-view-full-screen > .h-wrapper > .page-view{
 	width:100%;
 	right:0px;
@@ -245,13 +248,15 @@ body, .application-wrapper{
     position: sticky;
     top: 0px;
     background: var(--chat-title-bar-background);
+	padding-top: var(--chat-title-bar-padding-top);
     border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
     z-index: 1;
     backdrop-filter: blur(10px);
 	display:flex;
 	justify-content:center;
-	border-bottom: 1px solid var(--primary-color);
+	transition:padding 0.2s ease;
+	border-bottom:1px solid var(--primary-color-transparent);
 }
 
 .chat-page-titlebar-content{
@@ -262,14 +267,22 @@ body, .application-wrapper{
 	align-items:center;
 	padding-left:20px;
 	padding-right:20px;
-	gap:15px;
+	gap:20px;
+}
+
+.titlebar-content-user-profile-picture{
+	display: flex;
+	align-items:center;
+	height:54px;
+	width:54px;
 }
 
 .titlebar-content-user-profile-picture > img{
-	height:45px;
-	width:45px;
+	height:52px;
+	width:52px;
 	object-fit:cover;
 	border-radius:50%;
+	border:1px solid var(--primary-color);
 	-webkit-user-drag: none;
 	user-select: none;
 }
@@ -278,6 +291,7 @@ body, .application-wrapper{
 	color:white;
 	font-family:arial;
 	user-select:none;
+	font-weight:600;
 }
 
 .chat-page-message-container{
@@ -286,7 +300,7 @@ body, .application-wrapper{
 	display:flex;
 	flex-direction:column;
 	gap:10px;
-	transition:padding 0.1s ease;
+	transition:padding 0.2s ease;
 }
 
 .chat-page-message{
@@ -379,6 +393,7 @@ body, .application-wrapper{
 	position:absolute;
 	bottom:25px;
 	/*box-shadow: rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 80%) -6px -2px 16px 0px;*/
+	outline:1px solid var(--primary-color-transparent);;
 }
 
 .message-controls > .button-icon{
