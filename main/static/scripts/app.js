@@ -318,3 +318,13 @@ function set_page_view(n){
 
 /* App navigation */
 
+
+
+let chat_page_focused = true;
+const chat_page_titlebar_content = document.getElementById("chat-page-titlebar-content");
+
+onmousemove = function(e){
+    if (chat_page_focused){
+        chat_page_titlebar_content.style.transform = "translate(" + ((e.x - window.innerWidth)/300) + "px," + (e.y/300) + "px)";
+    }
+}
