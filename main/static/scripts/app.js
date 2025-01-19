@@ -154,43 +154,17 @@ function set_side_panel_width(c, force=false){
 const chat_page_message_container = document.getElementById("chat-page-message-container");
 const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
 const application_message_box_wrapper = document.getElementById("message-controls");
+const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
 function parse_text_message(text){
     let message_element = document.createElement("div");
     message_element.classList.add("chat-page-message");
-    text = text.replaceAll(/^[  \n]+|[  \n]+$/g, "");
     let messageHTMLCode = text;
     let newmessageHTMLCode = "";
-    let inside = false;
     for (let i=0;i<messageHTMLCode.length;i++){
         let char = messageHTMLCode[i];
         if (char == "\n"){
             newmessageHTMLCode += "<br>";
-        }else if (char == "*"){
-            if (inside != false){
-                if (inside == "**"){
-                    if (messageHTMLCode[i+1] == "*"){
-                        i++;
-                        newmessageHTMLCode += "</span>";
-                        inside = false;
-                    }else{
-                        newmessageHTMLCode += char;
-                    }
-                }
-                if (inside == "*"){
-                    newmessageHTMLCode += "</span>";
-                    inside = false;
-                }
-            }else{
-                if (messageHTMLCode[i+1] == "*"){
-                    i++;
-                    newmessageHTMLCode += "<span style='font-weight:600'>";
-                    inside = "**";
-                }else{
-                    newmessageHTMLCode += "<span style='font-style:italic'>";
-                    inside = "*";
-                }
-            }
         }else{
             newmessageHTMLCode += char;
         }
@@ -200,6 +174,10 @@ function parse_text_message(text){
     return message_element;
 }
 
+function create_message_elem(t, username=null, date=null){
+    chat_page_message_container.appendChild(parse_text_message(t));
+}
+
 function is_message_valid(text){
     if (text.replaceAll("\n","").replaceAll(" ","").replaceAll(" ","") != ""){
         return true;
@@ -207,34 +185,45 @@ function is_message_valid(text){
     return false;
 }
 
+function clear_message_input(){
+    application_message_input.innerHTML = "";
+    application_message_input_wrapper.classList.add("empty");
+    message_input_empty = true;
+}
+
+function init_send_animation(){
+    message_input_animation_playing  = true;
+    application_message_controls_wrapper.style.transition = "transform 0.05s ease";
+    setTimeout(function(){application_message_controls_wrapper.style.transform = "translateY(2px) scale(1)";},0);
+    setTimeout(function(){application_message_controls_wrapper.style.transform = "translateY(-4px) scale(1)";},50);
+    setTimeout(function(){application_message_controls_wrapper.style.transform = null;application_message_controls_wrapper.style.transition = null;message_input_animation_playing  = false;},120);
+    update_message_box_height();
+}
+
 function send_message(){
     let message = application_message_input.innerText;
     if (is_message_valid(message)){
-        chat_page_message_container.appendChild(parse_text_message(message));
-        application_message_input.innerHTML = "";
-        application_chat_page_wrapper.scrollTo(0,application_chat_page_wrapper.scrollHeight);
-        update_message_box_height();
+        message = message.replaceAll(/^[  \n]+|[  \n]+$/g, ""); //Clean up message
+        create_message_elem(message);
+        clear_message_input();
+        application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
+        init_send_animation();
     }
     return;
 }
 
 function update_message_box_height(){
-    if (application_message_input.innerText.replace("\n","") == ""){
-        application_message_input_wrapper.classList.add("empty");
-    }else{
-        application_message_input_wrapper.classList.remove("empty");
-    }
     let old_scroll_height = application.style.getPropertyValue('--message-box-height');
     let at_bottom = parseInt(application_message_input_wrapper.scrollTop) >= application_message_input_wrapper.scrollHeight - application_message_input_wrapper.clientHeight - 50;
-    application_message_input.style.height = "auto";
+    //application_message_input.style.height = "auto";
     let new_scroll_height = application_message_input_wrapper.scrollHeight - 20 + "px";
-    application_message_input.style.height = null;
+    //application_message_input.style.height = null;
     application.style.setProperty('--message-box-height', new_scroll_height);
     if (old_scroll_height != new_scroll_height){
         let at_bottom_chat = parseInt(application_chat_page_wrapper.scrollTop) >= application_chat_page_wrapper.scrollHeight - application_chat_page_wrapper.clientHeight - 20;
-        chat_page_message_container.style.paddingBottom = 10 + application_message_box_wrapper.clientHeight - 40 + "px";
+        chat_page_message_container.style.paddingBottom = application_message_box_wrapper.clientHeight - 40 + "px";
         if (at_bottom_chat){
-            application_chat_page_wrapper.scrollTop = application_chat_page_wrapper.scrollHeight;
+            setTimeout(function(){application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: "smooth"});},100);
         }
 
         if (at_bottom){
@@ -247,10 +236,35 @@ function update_message_box_height(){
 
 const application_message_input = document.getElementById("message-input");
 const application_message_input_wrapper = document.getElementById("message-input-wrapper"); 
+let application_message_input_native_text = "";
 let shift_is_held = false;
+let message_input_empty = true;
 
-application_message_input.addEventListener("input", update_message_box_height);
 
+
+function render_message_input_text(e){
+    console.log(e);
+    if (e.data == "*"){
+        console.log(e.data);
+        application_message_input.innerHTML += "<div style='width:20px;height:20px;background:red;'></div>"
+    }
+}
+
+function if_cleared(e){
+    if (e.inputType == "deleteContentBackward" || e.inputType == "deleteWordBackward"){
+        if (application_message_input.innerText.replace("\n","") == ""){
+            application_message_input_wrapper.classList.add("empty");
+            message_input_empty = true;
+        }
+    }else if (message_input_empty){
+        application_message_input_wrapper.classList.remove("empty");
+        message_input_empty = false;
+    }
+}
+
+application_message_input.addEventListener("input", function(e){if_cleared(e);render_message_input_text(e);update_message_box_height()});
+
+let message_input_animation_playing = false;
 application_message_input.onkeydown = function(e){
     if (e.key == "Shift"){
         shift_is_held = true;
@@ -258,6 +272,16 @@ application_message_input.onkeydown = function(e){
         if (!shift_is_held){
             send_message();
             e.preventDefault();
+        }
+    }else if(e.key == "Backspace"){
+        if (message_input_empty){
+            if (!message_input_animation_playing ){
+                message_input_animation_playing  = true;
+                application_message_controls_wrapper.style.transition = "transform 0.1s ease";
+                setTimeout(function(){application_message_controls_wrapper.style.transform = "translateX(-10px) rotate(-0.2deg)";},0);
+                setTimeout(function(){application_message_controls_wrapper.style.transform = "translateX(5px) rotate(0deg)";},100);
+                setTimeout(function(){application_message_controls_wrapper.style.transform = null;application_message_controls_wrapper.style.transition = null;message_input_animation_playing  = false;},200);
+            };
         }
     }
 }
@@ -273,7 +297,9 @@ set_side_panel_fullscreen(true);
 function load_page(){
     set_side_panel_fullscreen(false);setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
 }
-setTimeout(load_page, 600);
+document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
+    alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");
+});
 
 /* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
 /* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.

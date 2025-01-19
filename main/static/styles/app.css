@@ -20,8 +20,8 @@
 	margin-bottom:10px;
 }
 
-html{
-	scroll-behavior: smooth;
+*, html{
+	scroll-behavior: smooth !important;
 }
 
 body, .application-wrapper{
@@ -286,6 +286,7 @@ body, .application-wrapper{
 	display:flex;
 	flex-direction:column;
 	gap:10px;
+	transition:padding 0.1s ease;
 }
 
 .chat-page-message{
