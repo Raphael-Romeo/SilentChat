@@ -1,70 +1,28 @@
 from django.db import models
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+""" import static  """
+
 
 # Create your models here.
-
-class User(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
-    password = models.CharField(max_length=100)
-    age = models.IntegerField()
-    friends = models.ManyToManyField('self', blank=True)
-    friends_requests = models.ManyToManyField('self', blank=True)
-    blocked_users = models.ManyToManyField('self', blank=True)
-    muted_users = models.ManyToManyField('self', blank=True)   
-    # Create dropdown menu form current_status 
-    current_status = models.CharField(max_length=100, choices=[('online', 'Online'), ('offline', 'Offline'), ('busy', 'Busy')], default='offline')
-    # avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_pic = models.ImageField(upload_to='profile_pics', blank=True)
+    bio = models.TextField(max_length=500, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.user.username
     
-class PrivateChat(models.Model):
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user1')
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user2')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.user1.name} - {self.user2.name}'
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            UserProfile.objects.create(user=instance)
     
-class Channel(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    members = models.ManyToManyField(User, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()
 
-    def __str__(self):
-        return self.name
-
-class Message(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
-    content = models.TextField()
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.content    
-    
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.TextField()
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.message
-        
-# Show the models in the admin page
-
-admin.site.register(User)
-admin.site.register(PrivateChat)
-admin.site.register(Channel)
-admin.site.register(Message)
-admin.site.register(Notification)
+admin.site.register(UserProfile)

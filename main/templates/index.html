@@ -8,6 +8,19 @@
     <title>Home page</title>
 </head>
 <body>
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}    
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}</p>
+        <img src="{{ user.profile.profile_pic.url }}" alt="Profile image" width="200px" height="200px">
+        <a href="{% url 'logout_user' %}">Logout</a>
+    {% else %}
+        <p>Welcome, guest</p>
+        <a href="{% url 'register_user' %}">Register</a>
+        <a href="{% url 'login_user' %}">Login</a>
+    {% endif %}
     <p>Welcome to the home page</p>
+    
 </body>
 </html>
