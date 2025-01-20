@@ -261,7 +261,7 @@ body, .application-wrapper{
 .chat-page-titlebar-content{
 	background: var(--primary-color);
     backdrop-filter: blur(10px);
-    max-width: calc(70vw - 40px);
+    max-width: 960px;
     width: calc(100% - 60px);
     height: 100%;
     display: flex;
@@ -319,9 +319,9 @@ body, .application-wrapper{
 .chat-page-message-container{
 	width:calc(100% - 20px);
 	padding:10px;
+	padding-top:30px;
 	display:flex;
 	flex-direction:column;
-	gap:10px;
 	transition:padding 0.2s ease;
 }
 
@@ -332,8 +332,6 @@ body, .application-wrapper{
 	padding:15px;
 	width: fit-content;
     /*max-width: 33vw;*/
-	border-radius:10px;
-	background:var(--primary-color);
 	line-height:20px;
     word-wrap: break-word;
 }
@@ -414,8 +412,7 @@ body, .application-wrapper{
 	gap:10px;
 	position:absolute;
 	bottom:25px;
-	/*box-shadow: rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 80%) -6px -2px 16px 0px;*/
-	outline:1px solid var(--primary-color-transparent);;
+	box-shadow:rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 30%) -6px -2px 16px 0px;
 }
 
 .message-controls > .button-icon{
@@ -473,4 +470,24 @@ body, .application-wrapper{
 	transform:translateZ(0) perspective(1px);
 	-webkit-font-smoothing: subpixel-antialiased;
 	line-height:20px;
+}
+
+.strong{
+	font-weight:bold;
+}
+
+.strong-wrapper{
+	opacity:60%;
+	font-weight:normal;
+	font-style:normal;
+}
+
+.italic{
+	font-style:italic;
+}
+
+.italic-wrapper{
+	opacity:60%;
+	font-weight:normal;
+	font-style:normal;
 }

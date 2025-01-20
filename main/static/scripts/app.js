@@ -156,26 +156,16 @@ const application_chat_page_wrapper = document.getElementById("chat-page-wrapper
 const application_message_box_wrapper = document.getElementById("message-controls");
 const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
-function parse_text_message(text){
+function parse_text_message(htmlText){
     let message_element = document.createElement("div");
     message_element.classList.add("chat-page-message");
-    let messageHTMLCode = text;
-    let newmessageHTMLCode = "";
-    for (let i=0;i<messageHTMLCode.length;i++){
-        let char = messageHTMLCode[i];
-        if (char == "\n"){
-            newmessageHTMLCode += "<br>";
-        }else{
-            newmessageHTMLCode += char;
-        }
-    }
-    console.log(newmessageHTMLCode);
-    message_element.innerHTML = newmessageHTMLCode;
+    message_element.innerHTML = htmlText;
     return message_element;
 }
 
 function create_message_elem(t, username=null, date=null){
-    chat_page_message_container.appendChild(parse_text_message(t));
+    t = t.replaceAll("\n", "<br>");
+    chat_page_message_container.appendChild(parse_text_message(text_to_md_html(t)));
 }
 
 function is_message_valid(text){
@@ -202,6 +192,7 @@ function init_send_animation(){
 
 function send_message(){
     let message = application_message_input.innerText;
+    console.log(message);
     if (is_message_valid(message)){
         message = message.replaceAll(/^[  \n]+|[  \n]+$/g, ""); //Clean up message
         create_message_elem(message);
@@ -224,10 +215,9 @@ function update_message_box_height(){
         chat_page_message_container.style.paddingBottom = application_message_box_wrapper.clientHeight - 40 + "px";
         if (at_bottom_chat){
             chat_page_message_container.style.transition = "none";
-            application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: "smooth"});
+            application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight});
             setTimeout(function(){chat_page_message_container.style.transition = null;},1);
         }
-
         if (at_bottom){
             application_message_input_wrapper.scrollTop = application_message_input_wrapper.scrollHeight;
         }else{
@@ -238,24 +228,14 @@ function update_message_box_height(){
 
 const application_message_input = document.getElementById("message-input");
 const application_message_input_wrapper = document.getElementById("message-input-wrapper"); 
-let application_message_input_native_text = "";
 let shift_is_held = false;
 let message_input_empty = true;
-
-
-
-function render_message_input_text(e){
-    console.log(e);
-    if (e.data == "*"){
-        console.log(e.data);
-        application_message_input.innerHTML += "<div style='width:20px;height:20px;background:red;'></div>"
-    }
-}
 
 function if_cleared(e){
     if (e.inputType == "deleteContentBackward" || e.inputType == "deleteWordBackward"){
         if (application_message_input.innerText.replace("\n","") == ""){
             application_message_input_wrapper.classList.add("empty");
+            application_message_input.innerText = "";
             message_input_empty = true;
         }
     }else if (message_input_empty){
@@ -264,7 +244,29 @@ function if_cleared(e){
     }
 }
 
-application_message_input.addEventListener("input", function(e){if_cleared(e);render_message_input_text(e);update_message_box_height()});
+function text_to_md_html(t){
+    let htmlText = t.replaceAll(/<\/?span[^>]*>/g, "");
+    htmlText = htmlText.replace(/\*\*([\s\S]+?)\*\*/g, "<span class='strong-wrapper'></span><span class='strong'>$1</span><span class='strong-wrapper'></span>");
+    htmlText = htmlText.replace(/\*([\s\S]+?)\*/g, "<span class='italic-wrapper'></span><span class='italic'>$1</span><span class='italic-wrapper'></span>");
+    return htmlText;
+}
+
+function render_text(e){
+    saveSelectionAsMarker();
+    let application_message_input_native_text = application_message_input.innerHTML;
+    application_message_input.innerHTML = text_to_md_html(application_message_input_native_text);
+    const iw = application_message_input.getElementsByClassName("italic-wrapper");
+    const sw = application_message_input.getElementsByClassName("strong-wrapper");
+    for (let i=0;i<iw.length;i++){
+        iw[i].textContent = "*";
+    }
+    for (let i=0;i<sw.length;i++){
+        sw[i].textContent = "**"
+    }
+    restoreSelectionFromMarker();
+}
+
+application_message_input.addEventListener("input", function(e){render_text(e);if_cleared(e);update_message_box_height()});
 
 let message_input_animation_playing = false;
 application_message_input.onkeydown = function(e){
@@ -286,6 +288,10 @@ application_message_input.onkeydown = function(e){
             };
         }
     }
+}
+
+application_message_input.onch = function(){
+    console.log("HELLO");
 }
 
 application_message_input.onkeyup = function(e){
