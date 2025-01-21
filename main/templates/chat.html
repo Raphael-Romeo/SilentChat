@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chats</title>
+</head>
+<body>
+<div class="contacts">
+    {% for item in user_last_messages %}
+        <a href="{% url 'chat' item.user.username %}" class="{% if item.user.username == room_name %}active{% endif %}" data-id="{{ room_name }}">
+            <div class="chat">
+                <img src="{{ item.user.profile_picture.url }}" alt="profile_picture">
+
+                <div class="chat-info">
+                    <h3>{{ item.user.username }}</h3>
+                    {% if item.last_message %}
+                        <p>{{ item.last_message.message }}</p>
+                    {% else %}
+                        <p>No messages</p>
+                    {% endif %}
+                </div>
+
+                <div class="chat-time">
+                    <p>{{ item.last_message.created_at|date:"H:i" }}</p>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+        <div class="chat_section">  
+            <h2>Chat with {{ room_name }}</h2>
+            <div class="chat-box" id="chat-box">
+                {% if chats %} {% for message in chats %}
+                <div class="message {% if message.user.username == user.username %}my-message{% endif %}">
+                    <p>{{ message.content }}</p>
+                    <span>{{ message.created_at|date:"H:i" }}</span>
+                {% endfor %} {% else %}
+                <p class="no-messages">No messages</p>
+                {% endif %}
+        </div>
+
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Type a message">
+            <button type="submit">Send</button>
+        </form>
+
+{{slug|json_script:"room_slug"}}
+
+<script>
+    const chatbox = document.querySelector('#chat-box');
+
+    function scrollToBottom() {
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    scrollToBottom();
+
+    const roomName = JSON.parse(document.getElementById('room_slug').textContent);
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/{{ room_name }}/'
+    );
+
+    chatSocket.onopen = function(e) {
+        console.log('Connection established');
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-input').focus();
+
+    document.querySelector('#chat-form').onkeyup = function(e) {
+        if (e.keyCode === 13) {
+            document.querySelector('#chat-form button').click();
+        }
+    };
+
+    document.querySelector('#chat-form button').onclick = function(e) {
+        let messageInput = document.querySelector('#chat-input').value;
+
+        if(messageInput.length == 0) {
+            alert('Please enter a message');
+        } else {
+            chatSocket.send(JSON.stringify({
+                'message': messageInput,
+                'username': "{{ request.user.username }}",
+                'romm_name': "{{ room_name }}",
+            })); 
+            document.querySelector('#chat-input').value = '';
+        }
+    };
+
+    chatSocket.onmessge = function(e) {
+        const data = JSON.parse(e.data);    
+        
+        if (data.message && data.sender) {
+            
+            chatbox = document.querySelector('#chat-box');
+            const noMessages = chatbox.querySelector('.no-messages');
+            if (noMessages) {
+                noMessages.style.display = 'none';
+            }
+
+            const div = document.createElement('div');
+            div.className = 
+            "chat-message " +
+            (data.sender === "{{ request.user.username }}" 
+                ? "sender"
+                : "receiver");
+            div.innerHTML = `
+                <p>${data.message}</p>
+                <span>${data.sender}</span>
+            `;
+            chatbox.appendChild(div);
+            scrollToBottom();}
+    }
+
+
+    
+
+
+</script>
+
+</body>
+</html>
