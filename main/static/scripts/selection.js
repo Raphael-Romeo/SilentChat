@@ -3,7 +3,7 @@ function saveSelectionAsMarker() {
     if (!selection.rangeCount) return null;
 
     const range = selection.getRangeAt(0).cloneRange();
-    const marker = document.createElement('div');
+    const marker = document.createElement('marker');
     marker.id = '__selectionMarker';
     marker.style.display = 'none';
 

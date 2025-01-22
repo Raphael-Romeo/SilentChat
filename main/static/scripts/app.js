@@ -156,20 +156,20 @@ const application_chat_page_wrapper = document.getElementById("chat-page-wrapper
 const application_message_box_wrapper = document.getElementById("message-controls");
 const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
-function parse_text_message(htmlText){
-    let message_element = document.createElement("div");
-    message_element.classList.add("chat-page-message");
-    message_element.innerHTML = htmlText;
-    return message_element;
-}
-
 function create_message_elem(t, username=null, date=null){
-    t = t.replaceAll("\n", "<br>");
-    chat_page_message_container.appendChild(parse_text_message(text_to_md_html(t)));
+    let message_element = document.createElement("div");
+    let message_text_element = document.createElement("div");
+    message_element.classList.add("chat-page-message");
+    message_element.appendChild(message_text_element);
+    if (username != null){
+        message_element.classList.add("self");
+    }
+    message_text_element.innerHTML = text_to_md_html(t);
+    chat_page_message_container.appendChild(message_element);
 }
 
 function is_message_valid(text){
-    if (text.replaceAll("\n","").replaceAll(" ","").replaceAll(" ","") != ""){
+    if (text.replaceAll("\n","").replaceAll("<br>","").replaceAll(" ","").replaceAll(" ","").replaceAll("&nbsp;","") != ""){
         return true;
     }
     return false;
@@ -191,10 +191,11 @@ function init_send_animation(){
 }
 
 function send_message(){
-    let message = application_message_input.innerText;
-    console.log(message);
+    let message = application_message_input.innerHTML;
     if (is_message_valid(message)){
-        message = message.replaceAll(/^[  \n]+|[  \n]+$/g, ""); //Clean up message
+        message = message.replaceAll("&nbsp;"," ");
+        message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
+        console.log(message);
         create_message_elem(message);
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
@@ -245,28 +246,57 @@ function if_cleared(e){
 }
 
 function text_to_md_html(t){
-    let htmlText = t.replaceAll(/<\/?span[^>]*>/g, "");
+    let htmlText = t.replace(/<br[^>]*>/gi, '<br>');
+    htmlText = htmlText.replaceAll("&nbsp;"," ")
+    htmlText = htmlText.replaceAll(/<(?!\/?(marker|br)\b)[^>]*>/g, "");
     htmlText = htmlText.replace(/\*\*([\s\S]+?)\*\*/g, "<span class='strong-wrapper'></span><span class='strong'>$1</span><span class='strong-wrapper'></span>");
     htmlText = htmlText.replace(/\*([\s\S]+?)\*/g, "<span class='italic-wrapper'></span><span class='italic'>$1</span><span class='italic-wrapper'></span>");
+    htmlText = htmlText.replace(/(^|<br\s*\/?>|\n)# (.*?)(?=$|<br\s*\/?>|\n)/g, '$1<span class="header-hashtag"></span><span class="header1">$2</span>');
     return htmlText;
 }
 
-function render_text(e){
+
+let lastRenderCall = 0;
+let renderDelay = 150;
+let renderCallTimeout = false;
+
+function render_text(realtime=false){
+    if (realtime && lastRenderCall >= (Date.now() - renderDelay)) {
+        if (!renderCallTimeout){
+            renderCallTimeout = true;
+            return setTimeout(
+                function(){
+                    if (Date.now() + renderDelay > lastRenderCall) {
+                        render_text(true);
+                        renderCallTimeout = false; 
+                    }
+            }, 
+            renderDelay)
+        }else{
+            return;
+        }
+    }
+    lastRenderCall = Date.now();
+
     saveSelectionAsMarker();
     let application_message_input_native_text = application_message_input.innerHTML;
     application_message_input.innerHTML = text_to_md_html(application_message_input_native_text);
     const iw = application_message_input.getElementsByClassName("italic-wrapper");
-    const sw = application_message_input.getElementsByClassName("strong-wrapper");
     for (let i=0;i<iw.length;i++){
         iw[i].textContent = "*";
     }
+    const sw = application_message_input.getElementsByClassName("strong-wrapper");
     for (let i=0;i<sw.length;i++){
         sw[i].textContent = "**"
+    }
+    const hh = application_message_input.getElementsByClassName("header-hashtag");
+    for (let i=0;i<hh.length;i++){
+        hh[i].textContent = "# "
     }
     restoreSelectionFromMarker();
 }
 
-application_message_input.addEventListener("input", function(e){render_text(e);if_cleared(e);update_message_box_height()});
+application_message_input.addEventListener("input", function(e){render_text(true);if_cleared(e);update_message_box_height()});
 
 let message_input_animation_playing = false;
 application_message_input.onkeydown = function(e){
@@ -290,10 +320,6 @@ application_message_input.onkeydown = function(e){
     }
 }
 
-application_message_input.onch = function(){
-    console.log("HELLO");
-}
-
 application_message_input.onkeyup = function(e){
     if (e.key == "Shift"){
         shift_is_held = false;
@@ -303,7 +329,9 @@ application_message_input.onkeyup = function(e){
 /* page startup animation */
 set_side_panel_fullscreen(true);
 function load_page(){
-    set_side_panel_fullscreen(false);setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
+    set_side_panel_fullscreen(false);
+    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
+    setTimeout(function(){document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
 document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
     alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");

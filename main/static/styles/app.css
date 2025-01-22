@@ -270,11 +270,17 @@ body, .application-wrapper{
     padding-right: 20px;
     gap: 20px;
     position: absolute;
+	transition:top 0.3s ease, opacity 0.15s ease;
     top: 10px;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+.chat-page-titlebar-content.hidden{
+	top:-100%;
+	opacity:0%;
 }
 
 .titlebar-content-user-profile-picture{
@@ -330,10 +336,16 @@ body, .application-wrapper{
 	font-family:arial;
 	font-size:16px;
 	padding:15px;
+	padding-top:5px;
+	padding-bottom:5px;
 	width: fit-content;
     /*max-width: 33vw;*/
 	line-height:20px;
     word-wrap: break-word;
+}
+
+.chat-page-message.self{
+	align-self:flex-end;
 }
 
 .bottom-panel{
@@ -484,10 +496,22 @@ body, .application-wrapper{
 
 .italic{
 	font-style:italic;
+	margin-right:1px;
+	margin-left:1px;
 }
 
 .italic-wrapper{
 	opacity:60%;
 	font-weight:normal;
 	font-style:normal;
+}
+
+.header-hashtag{
+	opacity:60%;
+	font-weight:normal;
+	font-style:normal;
+}
+
+.header1{
+	font-size:24px;
 }
