@@ -156,10 +156,22 @@ const application_chat_page_wrapper = document.getElementById("chat-page-wrapper
 const application_message_box_wrapper = document.getElementById("message-controls");
 const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
+function format_date(date){
+    let hours = String(date.getHours()).padStart(2, '0');
+    let minutes = String(date.getMinutes()).padStart(2, '0');
+    if (hours[0] == "0"){
+        hours = hours.slice(1,2);
+    }
+    const timeHHMM = hours + ":" + minutes;
+    return timeHHMM;
+}
+
 function create_message_elem(t, username=null, date=null){
     let message_element = document.createElement("div");
+    message_element.classList.add("chat-page-message-wrapper");
     let message_text_element = document.createElement("div");
-    message_element.classList.add("chat-page-message");
+    message_text_element.classList.add("chat-page-message-content");
+    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:lightgray'>You</span>" + "<span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(new Date()) + "</span></div>";
     message_element.appendChild(message_text_element);
     if (username != null){
         message_element.classList.add("self");
@@ -255,7 +267,6 @@ function text_to_md_html(t){
     return htmlText;
 }
 
-
 let lastRenderCall = 0;
 let renderDelay = 150;
 let renderCallTimeout = false;
@@ -330,8 +341,8 @@ application_message_input.onkeyup = function(e){
 set_side_panel_fullscreen(true);
 function load_page(){
     set_side_panel_fullscreen(false);
-    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("bottom-panel-hidden");application.classList.remove("loading");}, 200);
-    setTimeout(function(){document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
+    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");}, 200);
+    setTimeout(function(){application.classList.remove("bottom-panel-hidden");document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
 document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
     alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");

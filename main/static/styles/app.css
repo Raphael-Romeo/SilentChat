@@ -237,7 +237,7 @@ body, .application-wrapper{
 	flex-direction:column;
 	position:relative;
 	border-radius:10px;
-	padding-bottom:calc(10px + var(--chat-box-message-container-border-bottom-size));
+	padding-bottom:calc(20px + var(--chat-box-message-container-border-bottom-size));
 	opacity:100%;
 	transition:padding 0.2s ease;
 }
@@ -331,14 +331,22 @@ body, .application-wrapper{
 	transition:padding 0.2s ease;
 }
 
-.chat-page-message{
+.chat-page-message-wrapper{
 	color:white;
 	font-family:arial;
-	font-size:16px;
+	display:flex;
+	flex-direction:column;
+	width: fit-content;
+	gap:5px;
 	padding:15px;
 	padding-top:5px;
 	padding-bottom:5px;
-	width: fit-content;
+	max-width:calc(100% - 30px)
+}
+
+.chat-page-message-content{
+	font-size:16px;
+	width:100%;
     /*max-width: 33vw;*/
 	line-height:20px;
     word-wrap: break-word;
