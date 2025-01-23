@@ -1,5 +1,9 @@
 const side_panel_drag_handle = document.getElementById("side-panel-drag-handle");
 const application = document.getElementById("application-wrapper");
+const application_settings_page = document.getElementById("settings-page");
+const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
+
+const application_pages = [application_settings_page, application_chat_page_wrapper];
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
 let max_side_panel_width = null;
@@ -56,10 +60,13 @@ window.onresize = function(e){
     }
     max_side_panel_width = new_size;
     set_side_panel_width(current_side_panel_size);
+    setTimeout(function(){enable_animations(true)},200)
 }
 
+let animations_enabled = true;
 function enable_animations(b){
-    if (!b){
+    if (!b && animations_enabled){
+        animations_enabled = false;
         const animated_elements = [
             "message-controls-wrapper",
             "message-controls",
@@ -70,7 +77,8 @@ function enable_animations(b){
         for (let i=0;i<animated_elements.length;++i){
             document.getElementById(animated_elements[i]).style.transition = "none";
         }
-    }else{
+    }else if(b && !animations_enabled){
+        animations_enabled = true;
         const animated_elements = [
             "message-controls-wrapper",
             "message-controls",
@@ -156,7 +164,6 @@ function set_side_panel_width(c, force=false){
 /* Textarea */
 
 const chat_page_message_container = document.getElementById("chat-page-message-container");
-const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
 const application_message_box_wrapper = document.getElementById("message-controls");
 const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
@@ -211,7 +218,6 @@ function send_message(){
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        console.log(message);
         create_message_elem(message);
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
@@ -341,12 +347,45 @@ application_message_input.onkeyup = function(e){
     }
 }
 
+function toggle_bottom_panel(b){
+    if (b){
+        application.classList.remove("bottom-panel-hidden");
+    }else{
+        application.classList.add("bottom-panel-hidden");
+    }
+}
+
+const message_controls_element = document.getElementById('message-controls');
+function disable_message_box(b){
+    if (b){
+        message_controls_element.classList.add("disabled");
+        application_message_input.contentEditable = false;
+    }else{
+        message_controls_element.classList.remove("disabled");
+        application_message_input.contentEditable = true;
+    }
+}
+
+function hide_side_panel(b){
+    if (b){
+        application.classList.remove("side-panel-visible");
+        side_panel_drag_handle.style.display = "none";
+    }else{
+        application.classList.add("side-panel-visible");
+        side_panel_drag_handle.style.display = null;
+    }
+}
+
 /* page startup animation */
+
+
+
 set_side_panel_fullscreen(true);
 function load_page(){
     set_side_panel_fullscreen(false);
+    set_page_view(1, false);
     setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
-    setTimeout(function(){application.classList.remove("bottom-panel-hidden");document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
+    setTimeout(function(){toggle_bottom_panel(true);document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
 document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
     alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");
@@ -361,12 +400,30 @@ document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
 
 /* App navigation */
 const application_page_transition_element = document.getElementById("page-transition")
-let current_page = 0;
-function set_page_view(n){
+let current_page = null;
+
+function set_page_view(n, auto=true){
     if (n != current_page){
+        if (current_page != null){
+            application_pages[current_page].classList.remove("active");
+        }
+
         current_page = n;
+
+        if (current_page == 0){ /* Settings page */
+            if (auto) {toggle_bottom_panel(false);disable_message_box(true);hide_side_panel(true);} /*toggle_bottom_panel(false); */
+            application_pages[0].classList.add("active");
+        }else if(current_page == 1){ /* Chat page */
+            if (auto) {toggle_bottom_panel(true);disable_message_box(false);hide_side_panel(false);}
+            application_pages[1].classList.add("active");
+        }
+    }
+}
+
+function set_page_view_transition(n){
+    if (n != current_page){
         application_page_transition_element.classList.remove("hidden");
-        setTimeout(function(){/* DO SOMETHING */}, 200);
+        setTimeout(function(){set_page_view(n)}, 200);
         setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 400)
     }
 }
@@ -384,3 +441,19 @@ onmousemove = function(e){
     }
 }
 
+
+let default_page = 1;
+document.getElementById("settings-button").onclick = function(){
+    if (current_page == 0){
+        return;
+    }
+    set_page_view_transition(0);
+}
+
+document.getElementById("settings-page-close-button").onclick = function(){
+    set_page_view_transition(default_page);
+}
+
+document.getElementById("settings-page-logout-button").onclick = function(){
+    window.location.href = "/logout";
+}

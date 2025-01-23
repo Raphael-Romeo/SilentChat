@@ -1,9 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Message
 
@@ -11,12 +10,15 @@ from .models import Message
 def home(request):
     return render(request, 'index.html')
 
-@login_required
+# Login is required to access this view.
 def app(request):
-    return render(request, 'app.html')
+    if request.user.is_authenticated:
+        return render(request, 'app.html')
+    else:
+        return HttpResponseRedirect('signup')
 
 # User registration and login/logout views
-def register_user(request):
+def signup_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
@@ -48,7 +50,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'You are now logged in')
-            return render(request, 'index.html')
+            return HttpResponseRedirect("app")
         else:
             messages.error(request, 'Invalid credentials')
             return render(request, 'login.html')
@@ -59,7 +61,6 @@ def logout_user(request):
     logout(request)
     messages.success(request, 'You are now logged out')
     return render(request, 'index.html')
-
 
 
 def chat_room(request, room_name):
