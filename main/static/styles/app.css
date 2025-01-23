@@ -108,7 +108,7 @@ body, .application-wrapper{
 .side-panel-wrapper{
 	overflow:hidden;
 	height:100%;
-	z-index:2;
+	z-index:3;
 	width:var(--side-panel-width);
 	background:var(--secondary-color);
 	transition: transform 0.2s ease, width 0.2s ease, margin 0.2s ease, opacity 0.2s ease, background 0.2s ease;
@@ -146,8 +146,146 @@ body, .application-wrapper{
 	user-select:none;
 }
 
+.application-wrapper:has(.held) > .h-wrapper > .side-panel-wrapper{
+	pointer-events:none;
+}
+
 .side-panel{
-	min-width:var(--side-panel-extended-width);
+	transition:transform 0.2s ease, opacity 0.6s ease;
+	height: calc(100% - 15px);
+    position: relative;
+}
+
+.side-panel.content-hidden{
+	opacity:0%;
+	transform:translateX(-100%);
+}
+
+.side-panel-button{
+	width:calc(100% - 60px);
+	margin:15px;
+	padding:15px;
+	color:white;
+	display:flex;
+	align-items:center;
+	gap:10px;
+	font-family:arial;
+	border-radius:10px;
+	font-weight:bold;
+	transition:background 0.2s ease;
+	user-select:none;
+	cursor:pointer;
+}
+
+.side-panel-button:hover{
+	background:var(--primary-color-transparent);
+}
+
+.side-panel-direct-messages-wrapper{
+	height:calc(100% - 105px);
+	width:100%;
+	transition:padding 0.2s ease;
+}
+
+.side-panel-direct-messages-header{
+    color: lightgray;
+    font-family: arial;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    user-select: none;
+    padding: 15px;
+    padding-top: 0px;
+    transition: color 0.2s ease;
+    box-shadow: 0 54px 56px 2px rgba(0, 0, 0, 0.9);
+}
+
+.side-panel-direct-messages-container{
+	list-style: none;
+	padding:15px;
+	width:calc(100% - 30px);
+    overflow-y: auto;
+    height: calc(100% - 25px);
+	transition:padding 0.2s ease;
+}
+
+.side-panel-direct-messages-container:not(:hover)::-webkit-scrollbar-thumb{
+	background:transparent;
+}
+
+.direct-message-button{
+	color:lightgray;
+	font-family:arial;
+	padding:10px;
+	margin-top:1px;
+	border-radius:10px;
+	display:flex;
+	align-items:center;
+	gap:15px;
+	position:relative;
+	user-select:none;
+	transition:background 0.2s ease, color 0.2s ease, width 0.2s ease, padding 0.2s ease, border-radius 0.2s ease;
+	overflow:hidden;
+	white-space:nowrap;
+	cursor:pointer;
+}
+
+.direct-messages-container-fade{
+	background:linear-gradient(180deg, var(--secondary-color) 50%, transparent);;
+	height:20px;
+	width:100%;
+	position:absolute;
+	margin-top:-15px;
+	z-index:1;
+	pointer-events:none;
+}
+
+.direct-message-button:hover{
+	background:var(--primary-color-transparent);
+	color:white;
+}
+
+.direct-message-button:hover > .direct-message-picture{
+	filter:grayscale(0.25);
+}
+
+.direct-message-button.selected{
+	color:white;
+	background:var(--primary-color);
+}
+
+.direct-message-picture{
+	min-width:32px;
+	height:32px;
+	border-radius:50%;
+	filter:grayscale(0.5);
+	user-select:none;
+	transition:filter 0.2s ease, height 0.2s ease, width 0.2s ease;
+	object-fit:cover;
+}
+
+.direct-message-name{
+	transition: opacity 0.2s ease;
+    min-width: 64px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.side-panel.compact > .side-panel-button{
+	overflow:hidden;
+}
+
+.side-panel.compact > .side-panel-direct-messages-wrapper > .side-panel-direct-messages-container > .direct-message-button > .direct-message-name{
+	opacity:0%;
+}
+
+.side-panel.compact > .side-panel-direct-messages-wrapper > .side-panel-direct-messages-container > .direct-message-button > .direct-message-picture{
+	/*margin-left:-1px;*/
+}
+
+.direct-message-button.selected > .direct-message-picture{
+	filter:grayscale(0);
 }
 
 .page-view{
@@ -160,6 +298,26 @@ body, .application-wrapper{
 	position:absolute;
 	right:10px;
 	top:10px;
+}
+
+.pages-wrapper{
+	position:relative;
+	width:100%;
+	height:100%;
+}
+
+.page-transition{
+	background:var(--secondary-color);
+	position:absolute;
+	height:100%;
+	width:100%;
+	pointer-events:none;
+	z-index:2;
+	transition:background 0.2s ease;
+}
+
+.page-transition.hidden{
+	background:transparent;
 }
 
 .application-wrapper.page-view-full-screen, .application-wrapper.page-view-full-screen.side-panel-compact{
@@ -440,7 +598,6 @@ body, .application-wrapper{
 	display:flex;
 	align-items:center
 }
-
 
 .message-controls-wrapper:hover > .message-controls, .message-controls-focused, .message-controls:has(.message-input:focus){
 	opacity:100%;

@@ -13,35 +13,54 @@
             <div class="side-panel-hover-zone"></div>
             <div class="h-wrapper">
                 <div id="side-panel-wrapper" class="side-panel-wrapper"> 
-                    <div class="side-panel">
+                    <div id="side-panel" class="side-panel content-hidden">
+                        <div class="side-panel-button">
+                            <span class="material-symbols-outlined">emoji_people</span>
+                            Friends
+                        </div>
+                        <div class="side-panel-direct-messages-wrapper">
+                            <div class="side-panel-direct-messages-header">
+                                DIRECT MESSAGES
+                            </div>
+                            <ul class="side-panel-direct-messages-container">
+                                <!-- div class="direct-messages-container-fade"></div -->
+                                <li class="direct-message-button selected"> <img class="direct-message-picture" src="/static/images/cool-profile-picture-87h46gcobjl5e4xu.jpg"> <span class="direct-message-name">Mary</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Eddie</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Sample-user1</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Sample-user2</span> </li>
+
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div id="page-view" class="page-view">
                     <div id="side-panel-drag-handle" class="side-panel-drag-handle"><span class="material-symbols-outlined">drag_indicator</span></div>
-                    <div class="page-view-transition"></div>
-                    <div class="chat-page-wrapper" id="chat-page-wrapper">
-                        <div class="chat-page-titlebar"> 
-                            <div class="chat-page-titlebar-content hidden" id="chat-page-titlebar-content">
-                                <div class="titlebar-content-user-profile-picture"><img src="/static/images/woman_placeholder_profile_picture.webp"></div>
-                                <div class="titlebar-content-user-name-status-wrapper">
-                                    <div class="titlebar-content-user-name">Mary</div>
-                                    <div class="titlebar-content-user-status">Last seen 3 years ago</div>
+                    <div id="pages-wrapper" class="pages-wrapper">
+                        <div id="page-transition" class="page-transition hidden"></div>
+                        <div class="chat-page-wrapper" id="chat-page-wrapper">
+                            <div class="chat-page-titlebar"> 
+                                <div class="chat-page-titlebar-content hidden" id="chat-page-titlebar-content">
+                                    <div class="titlebar-content-user-profile-picture"><img src="/static/images/cool-profile-picture-87h46gcobjl5e4xu.jpg"></div>
+                                    <div class="titlebar-content-user-name-status-wrapper">
+                                        <div class="titlebar-content-user-name">Mary</div>
+                                        <div class="titlebar-content-user-status">Last seen 3 years ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-page" id="chat-page">
+                                <div class="chat-page-message-container" id="chat-page-message-container">
                                 </div>
                             </div>
                         </div>
-                        <div class="chat-page" id="chat-page">
-                            <div class="chat-page-message-container" id="chat-page-message-container">
-                            </div>
-                        </div>
+                        <!-- Other page types here -->
                     </div>
-                    <!-- Other page types here -->
                 </div>
             </div>
             <div class="bottom-panel">
                 <div id="user-details-wrapper" class="user-details-wrapper">
                     <div class="user-details-card">
                         <span class="material-symbols-outlined">person</span>
-                        <div class="user-name" id="user-details-card-user-name">{{ user.username }}</div>
+                        <div class="user-name" id="user-details-card-user-name">You</div>
                         <div class="user-full-name"></div>
                     </div>
                     <div class="user-details-actions">

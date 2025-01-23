@@ -87,8 +87,10 @@ function enable_animations(b){
 function set_side_panel_compact(b){
     if (b){
         application.classList.add("side-panel-compact");
+        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 100)
     }else{
         application.classList.remove("side-panel-compact");
+        document.getElementById("side-panel").classList.remove("compact");
     }
 }
 
@@ -96,8 +98,10 @@ function set_side_panel_fullscreen(b){
     app_fullscreen = b;
     if (b){
         application.classList.add("page-view-full-screen");
+        document.getElementById("side-panel").classList.remove("compact");
     }else{
         application.classList.remove("page-view-full-screen");
+        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 100)
     }
 }
 
@@ -341,7 +345,7 @@ application_message_input.onkeyup = function(e){
 set_side_panel_fullscreen(true);
 function load_page(){
     set_side_panel_fullscreen(false);
-    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");}, 200);
+    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
     setTimeout(function(){application.classList.remove("bottom-panel-hidden");document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
 document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
@@ -356,9 +360,15 @@ document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
 
 
 /* App navigation */
-
+const application_page_transition_element = document.getElementById("page-transition")
+let current_page = 0;
 function set_page_view(n){
-
+    if (n != current_page){
+        current_page = n;
+        application_page_transition_element.classList.remove("hidden");
+        setTimeout(function(){/* DO SOMETHING */}, 200);
+        setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 400)
+    }
 }
 
 /* App navigation */
@@ -373,3 +383,4 @@ onmousemove = function(e){
         chat_page_titlebar_content.style.transform = "translate(" + ((e.x - window.innerWidth)/300) + "px," + (e.y/300) + "px)";
     }
 }
+
