@@ -10,6 +10,7 @@ let max_side_panel_width = null;
 let minimum_side_panel_width = 215;
 let compact_side_panel_mode = false;
 let app_fullscreen = false;
+let session_username = null;
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -95,7 +96,7 @@ function enable_animations(b){
 function set_side_panel_compact(b){
     if (b){
         application.classList.add("side-panel-compact");
-        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 100)
+        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 200)
     }else{
         application.classList.remove("side-panel-compact");
         document.getElementById("side-panel").classList.remove("compact");
@@ -109,7 +110,7 @@ function set_side_panel_fullscreen(b){
         document.getElementById("side-panel").classList.remove("compact");
     }else{
         application.classList.remove("page-view-full-screen");
-        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 100)
+        setTimeout(function(){if (!app_fullscreen && compact_side_panel_mode){document.getElementById("side-panel").classList.add("compact");}}, 200)
     }
 }
 
@@ -182,7 +183,7 @@ function create_message_elem(t, username=null, date=null){
     message_element.classList.add("chat-page-message-wrapper");
     let message_text_element = document.createElement("div");
     message_text_element.classList.add("chat-page-message-content");
-    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:lightgray'>You</span>" + "<span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(new Date()) + "</span></div>";
+    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:var(--text-color-lighter)'>" + username + "</span><span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(new Date()) + "</span></div>";
     message_element.appendChild(message_text_element);
     if (username != null){
         message_element.classList.add("self");
@@ -218,7 +219,7 @@ function send_message(){
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        create_message_elem(message);
+        create_message_elem(message, session_username);
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         init_send_animation();
@@ -378,7 +379,21 @@ function hide_side_panel(b){
 
 /* page startup animation */
 
+function load_user_data(d){
+    document.getElementById("user-details-card-user-name").innerText = d.username;
+    document.getElementById("settings-page-user-name").innerText = d.username;
+    session_username = d.username;
+    document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
+    document.getElementById("settings-page-user-profile").src = d.profile_pic;
+}
 
+function wait_for_fonts_to_load(){
+    document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
+        alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");
+    });
+}
+
+get_user_details();
 
 set_side_panel_fullscreen(true);
 function load_page(){
@@ -387,9 +402,6 @@ function load_page(){
     setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
     setTimeout(function(){toggle_bottom_panel(true);document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
-document.fonts.ready.then(() => {setTimeout(load_page, 100);}).catch(() => {
-    alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");
-});
 
 /* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
 /* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
@@ -456,4 +468,12 @@ document.getElementById("settings-page-close-button").onclick = function(){
 
 document.getElementById("settings-page-logout-button").onclick = function(){
     window.location.href = "/logout";
+}
+
+document.getElementById("settings-page-theme-button").onclick = function(){
+    if (application.classList.contains("lightmode")){
+        application.classList.remove("lightmode");
+    }else{
+        application.classList.add("lightmode");
+    }
 }

@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,300,0,-25" />
         <link rel="stylesheet" href="/static/styles/app.css"/>
         <script src="/static/scripts/selection.js"></script>
+        <script src="/static/scripts/app-connector.js"></script>
         <script defer src="/static/scripts/app.js"></script>
     </head>
     <body>
@@ -25,9 +26,9 @@
                             <ul class="side-panel-direct-messages-container">
                                 <!-- div class="direct-messages-container-fade"></div -->
                                 <li class="direct-message-button selected"> <img class="direct-message-picture" src="https://r2.starryai.com/results/1024033451/7ebe8708-b5b6-42c1-a585-118cd93d2865.webp"> <span class="direct-message-name">Mary</span> </li>
-                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Eddie</span> </li>
-                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Sample-user1</span> </li>
-                                <li class="direct-message-button"> <img class="direct-message-picture" src="/static/images/woman_placeholder_profile_picture.webp"> <span class="direct-message-name">Sample-user2</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="https://r2.starryai.com/results/1024033451/7ebe8708-b5b6-42c1-a585-118cd93d2865.webp"> <span class="direct-message-name">Eddie</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="https://r2.starryai.com/results/1024033451/7ebe8708-b5b6-42c1-a585-118cd93d2865.webp"> <span class="direct-message-name">Sample-user1</span> </li>
+                                <li class="direct-message-button"> <img class="direct-message-picture" src="https://r2.starryai.com/results/1024033451/7ebe8708-b5b6-42c1-a585-118cd93d2865.webp"> <span class="direct-message-name">Sample-user2</span> </li>
 
                             </ul>
                         </div>
@@ -43,14 +44,15 @@
                             <hr class="settings-page-hr">
                             <h3 class="settings-page-header"> Account </h3>
                             <div class="settings-page-account-details">
-                                
+                                <img class="settings-page-user-profile" id="settings-page-user-profile" src=""/>
+                                <div class="settings-page-user-name" id="settings-page-user-name"></div>
                             </div>
                             <div class="settings-page-button"> <span class="material-symbols-outlined">edit_note</span> Edit account </div>
                             <div class="settings-page-button" id="settings-page-logout-button"> <span class="material-symbols-outlined">logout</span> Logout </div>
                             <div class="settings-page-button be-careful"> <span class="material-symbols-outlined">delete</span> Delete account </div>
                             <hr class="settings-page-hr">
                             <h3 class="settings-page-header"> Appearance </h3>
-                            <div class="settings-page-button"> <span class="material-symbols-outlined">dark_mode</span> Dark Theme </div>
+                            <div class="settings-page-button" id="settings-page-theme-button"> <span class="material-symbols-outlined">dark_mode</span> Dark Theme </div>
                         </div>
                         <div class="chat-page-wrapper" id="chat-page-wrapper">
                             <div class="chat-page-titlebar"> 
@@ -74,8 +76,8 @@
             <div class="bottom-panel">
                 <div id="user-details-wrapper" class="user-details-wrapper">
                     <div class="user-details-card">
-                        <span class="material-symbols-outlined">person</span>
-                        <div class="user-name" id="user-details-card-user-name">You</div>
+                        <img class="user-profile-picture" id="user-details-card-profile-picture" src=""/>
+                        <div class="user-name" id="user-details-card-user-name"></div>
                         <div class="user-full-name"></div>
                     </div>
                     <div class="user-details-actions">

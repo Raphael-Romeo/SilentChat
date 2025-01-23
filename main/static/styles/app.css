@@ -37,6 +37,7 @@ body, .application-wrapper{
 	--secondary-color-transparent: #1119;
 	--secondary-color-transparent-identical-on-primary: #22222280;
 	--primary-color-transparent: #0008;
+	--primary-color-very-transparent:rgba(255,255,255,0.2);
 	/*--secondary-color: #252525; Brighter secondary so I can see better */
 	--side-panel-width: 0px; /* for a smaller version set this to 64px */
 	--side-panel-extended-width: 215px;
@@ -50,9 +51,30 @@ body, .application-wrapper{
 	--chat-box-message-container-border-bottom-size: 0px;
 	--chat-title-bar-background: linear-gradient(180deg, var(--secondary-color) 5%, transparent);
 	--chat-title-bar-padding-top: 0px;
+	--text-color: white;
+	--text-color-light: lightgray;
+	--text-color-lighter:  darkgray;
+	--title-bar-box-shadow:rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+	--side-panel-box-shadow:0 54px 56px 2px rgba(0, 0, 0, 0.9);
+	--text-box-box-shadow:rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 30%) -6px -2px 16px 0px;
 	overflow-y:hidden;
 	min-width:640px;
 	min-height:320px;
+}
+
+.application-wrapper.lightmode{
+	--primary-color:white;
+	--secondary-color:#f3f3f3;
+	--secondary-color-transparent:#f3f3f399;
+	--text-color:black;
+	--text-color-light:#333;
+	--text-color-lighter:#555;
+	--title-bar-box-shadow:rgb(90 90 90 / 5%) 0px 54px 55px, rgb(176 176 176 / 12%) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgb(176 176 176 / 2%) 0px 12px 13px, rgb(167 167 167 / 9%) 0px -3px 5px;
+	--side-panel-box-shadow:0 54px 56px 2px rgb(177 177 177 / 59%);
+	--secondary-color-transparent-identical-on-primary:#d4d4d480;
+	--text-box-box-shadow:rgb(90 90 90 / 5%) 0px 54px 55px, rgb(176 176 176 / 12%) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgb(176 176 176 / 2%) 0px 12px 13px, rgb(167 167 167 / 9%) 0px -3px 5px;
+	--primary-color-transparent:#ffffff99;
+	--primary-color-very-transparent:rgba(0,0,0,0.2);
 }
 
 .application-wrapper.loading{
@@ -70,10 +92,10 @@ body, .application-wrapper{
 	position:relative;
 }
 
-.material-symbols-outlined{color:white;font-size:24px;user-select:none;transition:color 0.2s ease, transform 0.2s ease;}
+.material-symbols-outlined{color:var(--text-color);font-size:24px;user-select:none;transition:color 0.2s ease, transform 0.2s ease;}
 
-.button-icon > .material-symbols-outlined{cursor:pointer;color:lightgray}
-.button-icon > .material-symbols-outlined:hover{color:white;transform:scale(1.05)}
+.button-icon > .material-symbols-outlined{cursor:pointer;color:var(--text-color-light)}
+.button-icon > .material-symbols-outlined:hover{color:var(--text-color);transform:scale(1.05)}
 
 .button-icon{height:24px}
 
@@ -165,7 +187,7 @@ body, .application-wrapper{
 	width:calc(100% - 60px);
 	margin:15px;
 	padding:15px;
-	color:white;
+	color:var(--text-color);
 	display:flex;
 	align-items:center;
 	gap:10px;
@@ -188,7 +210,7 @@ body, .application-wrapper{
 }
 
 .side-panel-direct-messages-header{
-    color: lightgray;
+    color: var(--text-color-light);
     font-family: arial;
     font-size: 14px;
     text-overflow: ellipsis;
@@ -198,7 +220,7 @@ body, .application-wrapper{
     padding: 15px;
     padding-top: 0px;
     transition: color 0.2s ease;
-    box-shadow: 0 54px 56px 2px rgba(0, 0, 0, 0.9);
+    box-shadow: var(--side-panel-box-shadow);
 }
 
 .side-panel-direct-messages-container{
@@ -215,7 +237,7 @@ body, .application-wrapper{
 }
 
 .direct-message-button{
-	color:lightgray;
+	color:var(--text-color-light);
 	font-family:arial;
 	padding:10px;
 	margin-top:1px;
@@ -243,7 +265,7 @@ body, .application-wrapper{
 
 .direct-message-button:hover{
 	background:var(--primary-color-transparent);
-	color:white;
+	color:var(--text-color);
 }
 
 .direct-message-button:hover > .direct-message-picture{
@@ -251,7 +273,7 @@ body, .application-wrapper{
 }
 
 .direct-message-button.selected{
-	color:white;
+	color:var(--text-color);
 	background:var(--primary-color);
 }
 
@@ -343,12 +365,12 @@ body, .application-wrapper{
 	position:absolute;
 	border-radius:50%;
 	transition:background 0.2s ease;
-	border:1px solid darkgray;
+	border:1px solid var(--primary-color-very-transparent);
 	cursor:pointer;
 }
 
 .settings-page-close-button:hover{
-	background:darkgray;
+	background: var(--primary-color-very-transparent);
 }
 
 .settings-page-wrapper.active{
@@ -356,15 +378,15 @@ body, .application-wrapper{
 }
 
 .settings-page-title{
-	color:white;font-size:32px;font-family:arial;width:100%;text-align:center;user-select:none;
+	color:var(--text-color);font-size:32px;font-family:arial;width:100%;text-align:center;user-select:none;
 }
 
 .settings-page-header{
-	color:white;font-size:24px;font-family:arial;padding-left:10px;user-select:none;
+	color:var(--text-color);font-size:24px;font-family:arial;padding-left:10px;user-select:none;
 }
 
 .settings-page-hr{
-	border-color:var(--primary-color);
+	border-color:var(--primary-color-very-transparent);
 	width:100%;
 	margin-top:40px;
 	margin-bottom:40px;
@@ -372,10 +394,10 @@ body, .application-wrapper{
 
 .settings-page-button{
 	padding:10px;
-	color:white;
+	color:var(--text-color);
 	font-family:arial;
 	border-radius:10px;
-	border:1px solid rgba(255,255,255,0.2);
+	border:1px solid var(--primary-color-very-transparent);
 	margin-top:10px;
 	display:flex;
 	align-items:center;
@@ -391,7 +413,7 @@ body, .application-wrapper{
 }
 
 .settings-page-button:hover{
-	background:rgba(255,255,255,0.2);
+	background:var(--primary-color-transparent);
 }
 
 .settings-page-button.be-careful:hover{
@@ -404,8 +426,26 @@ body, .application-wrapper{
 	width:calc(100% - 22px);
 	padding:10px;
 	height:120px;
-	border:1px solid rgba(255,255,255,0.2);
+	border:1px solid var(--primary-color-very-transparent);
 	margin-top:10px;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	gap:20px;
+}
+.settings-page-user-name{
+	color:var(--text-color);
+	font-weight:600;
+	font-size:24px;
+	font-family:arial;
+	user-select:none;
+}
+
+.settings-page-user-profile{
+	border-radius:50%;
+	width:50px;
+	height:50px;
+	-webkit-user-drag: none;
 }
 
 .application-wrapper.page-view-full-screen, .application-wrapper.page-view-full-screen.side-panel-compact{
@@ -441,7 +481,7 @@ body, .application-wrapper{
  .page-view-full-screen:has(.user-details-wrapper:hover) > .side-panel-hover-zone {pointer-events:all;}
 
 .page-view-full-screen > .h-wrapper > .side-panel-wrapper{
-	box-shadow: rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 80%) -6px -2px 16px 0px;background:var(--secondary-color-transparent);backdrop-filter:blur(10px);
+	box-shadow: var(--text-box-box-shadow);background:var(--secondary-color-transparent);backdrop-filter:blur(10px);
 }
 
 .page-view-full-screen > .h-wrapper > .page-view > .side-panel-drag-handle{left:0;height:100vh;top:0;border-radius:0px;}
@@ -460,6 +500,10 @@ body, .application-wrapper{
 .page-view-full-screen:has(.side-panel-wrapper:hover) > .bottom-panel > .user-details-wrapper,
 .page-view-full-screen:has(.user-details-wrapper:hover) > .bottom-panel > .user-details-wrapper{
 	opacity: 100%;
+}
+
+.application-wrapper.page-view-full-screen > .h-wrapper > .page-view > .pages-wrapper > .chat-page-wrapper > .chat-page-titlebar > .chat-page-titlebar-content{
+	background:var(--secondary-color);
 }
 
 .chat-page-wrapper{
@@ -521,12 +565,12 @@ body, .application-wrapper{
     padding-right: 20px;
     gap: 20px;
     position: absolute;
-	transition:top 0.3s ease, opacity 0.15s ease;
+	transition:top 0.3s ease, opacity 0.15s ease, background 0.2s ease;
     top: 10px;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     border-radius: 15px;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    box-shadow: var(--title-bar-box-shadow);
 }
 
 .chat-page-titlebar-content.hidden{
@@ -559,7 +603,7 @@ body, .application-wrapper{
 }
 
 .titlebar-content-user-name{
-	color:white;
+	color:var(--text-color);
 	font-family:arial;
 	user-select:none;
 	font-weight:600;
@@ -583,7 +627,7 @@ body, .application-wrapper{
 }
 
 .chat-page-message-wrapper{
-	color:white;
+	color:var(--text-color);
 	font-family:arial;
 	display:flex;
 	flex-direction:column;
@@ -637,13 +681,23 @@ body, .application-wrapper{
 }
 
 .user-name{
-	color: white;
+	color: var(--text-color);
     font-family: arial;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+	user-select:none;
+}
+
+.user-profile-picture{
+	min-width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 5px;
+	-webkit-user-drag: none;
 	user-select:none;
 }
 
@@ -683,7 +737,7 @@ body, .application-wrapper{
 	gap:10px;
 	position:absolute;
 	bottom:25px;
-	box-shadow:rgb(6 7 8 / 48%) 6px 2px 16px 0px, rgb(0 0 0 / 30%) -6px -2px 16px 0px;
+	box-shadow:var(--text-box-box-shadow);
 }
 
 .message-controls > .button-icon{
@@ -729,7 +783,7 @@ body, .application-wrapper{
 .message-input{
 	background:transparent;
 	width:100%;
-	color:white;
+	color:var(--text-color);
 	outline:none;
 	border:none;
 	font-size:16px;

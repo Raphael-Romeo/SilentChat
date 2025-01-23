@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Q
 from .models import Message
+import json
 
 # index page view, index.html located in templates
 def home(request):
@@ -15,7 +16,7 @@ def app(request):
     if request.user.is_authenticated:
         return render(request, 'app.html')
     else:
-        return HttpResponseRedirect('signup')
+        return HttpResponseRedirect('/signup')
 
 # User registration and login/logout views
 def signup_user(request):
@@ -100,3 +101,18 @@ def chat_room(request, room_name):
         'search_query': search_query,
         'user_last_message': user_last_message
     })
+
+
+# API TYPE CALLS (Functions here return JSON data).
+
+def app_get_user_details(request):
+    if request.user.is_authenticated:
+        user = request.user
+        print("hello world")
+        try:
+            data = {"username": user.username, "profile_pic": user.profile.profile_pic.url}
+        except:
+            data = {"username": user.username, "profile_pic": "/static/images/placeholder_profile_picture.webp"}
+        return HttpResponse(json.dumps(data), content_type="application/json")
+    else:
+        return HttpResponseRedirect("/signup")
