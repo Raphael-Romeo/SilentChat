@@ -17,6 +17,7 @@ urlpatterns = [
 
     # GET
     path('app/get/user_details', app_get_user_details),
+    path('app/get/messages/<int:chatroom_id>', app_get_messages),
     # ...
 
     # POST

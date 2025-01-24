@@ -377,9 +377,16 @@ function hide_side_panel(b){
     }
 }
 
+function load_message_data(message){
+    console.log(message);
+}
+
+
 function set_chatpage(chatroom){
     document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
+    get_messages(chatroom.chat_room);
+    
 }
 
 function set_chatpage_transition(n){
