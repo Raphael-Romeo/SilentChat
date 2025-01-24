@@ -143,7 +143,7 @@ body, .application-wrapper{
 .side-panel-drag-handle{
 	opacity:0%;
 	transition:opacity 0.2s ease, left 0.2s ease, height 0.2s ease, border-radius 0.2s ease, top 0.2s ease;
-	cursor: e-resize;
+	cursor: ew-resize;
 	width:10px;
 	position:absolute;
 	height:calc(100% - 20px);
@@ -164,7 +164,7 @@ body, .application-wrapper{
 }
 
 .application-wrapper:has(.held){
-	cursor:e-resize;
+	cursor:ew-resize;
 	user-select:none;
 }
 
@@ -220,7 +220,6 @@ body, .application-wrapper{
     padding: 15px;
     padding-top: 0px;
     transition: color 0.2s ease;
-    box-shadow: var(--side-panel-box-shadow);
 }
 
 .side-panel-direct-messages-container{

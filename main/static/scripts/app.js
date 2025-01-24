@@ -377,7 +377,26 @@ function hide_side_panel(b){
     }
 }
 
-/* page startup animation */
+function set_chatpage(chatroom){
+    document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
+    document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
+}
+
+function set_chatpage_transition(n){
+    if (current_page == 1){
+        application_page_transition_element.style.transition = "background 0.1s ease"
+        application_page_transition_element.classList.remove("hidden");
+        document.getElementById("chat-page-titlebar-content").classList.add("hidden");
+        setTimeout(function(){set_chatpage(n)}, 100);
+        setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 200)
+        setTimeout(function(){application_page_transition_element.style.transition = null;document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300)
+    }else{
+        set_chatpage(n);
+        set_page_view_transition(1);
+    }
+}
+
+/* page initialisation */
 
 function load_user_data(d){
     document.getElementById("user-details-card-user-name").innerText = d.username;
@@ -385,9 +404,31 @@ function load_user_data(d){
     session_username = d.username;
     document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
     document.getElementById("settings-page-user-profile").src = d.profile_pic;
-    document.getElementById("direct-messages-container").innerHTML = "";
-    for(let i = 0; i < d.user_chats.length; ++i) {
-        document.getElementById("direct-messages-container").innerHTML += "<li class='direct-message-button'> <img class='direct-message-picture' src='"+ d.user_chats[i].photo +"'> <span class='direct-message-name'>" + d.user_chats[i].name + "</span> </li>";
+    if (d.user_chats.length > 0){
+        document.getElementById("direct-messages-container").innerHTML = "";
+        for(let i = 0; i < d.user_chats.length; ++i) {
+            let userchat_element = document.createElement("li");
+            userchat_element.classList.add("direct-message-button");
+            userchat_element.data = d.user_chats[i];
+            userchat_element.innerHTML = "<img class='direct-message-picture' src='" + d.user_chats[i].photo + "'><span class='direct-message-name'>" + d.user_chats[i].name + "</span>";
+            document.getElementById("direct-messages-container").appendChild(userchat_element);
+            userchat_element.onclick = function(){
+                if(!this.classList.contains("selected")) {
+                    set_page_view_transition(1);
+                    set_chatpage_transition(this.data);
+                    remove_class("selected");
+                    this.classList.add("selected");
+                } 
+            }
+        }    
+    document.getElementById("direct-messages-container").children[0].click();
+    }
+}
+
+function remove_class (class_name) {
+    let selected = document.getElementsByClassName(class_name);
+        for(let i = selected.length - 1; i >= 0; i--) {
+            selected[i].classList.remove(class_name);
     }
 }
 
@@ -411,7 +452,7 @@ function load_page(){
 /* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
 /* If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase.
 
-/* page startup animation */
+/* page initialisation */
 
 
 /* App navigation */
