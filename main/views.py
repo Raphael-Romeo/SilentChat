@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Q
-from .models import Message
+from .models import *
 import json
+
 
 # index page view, index.html located in templates
 def home(request):
@@ -51,7 +52,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'You are now logged in')
-            return HttpResponseRedirect("app")
+            return HttpResponseRedirect("/app")
         else:
             messages.error(request, 'Invalid credentials')
             return render(request, 'login.html')
@@ -108,11 +109,31 @@ def chat_room(request, room_name):
 def app_get_user_details(request):
     if request.user.is_authenticated:
         user = request.user
-        print("hello world")
-        try:
-            data = {"username": user.username, "profile_pic": user.profile.profile_pic.url}
-        except:
-            data = {"username": user.username, "profile_pic": "/static/images/placeholder_profile_picture.webp"}
+        UserChats = UserChatRoom.objects.all().filter(Q(user_A=user) | Q(user_B=user))
+        GroupChats = GroupChatRoom.objects.all().filter(users__in=[user])
+        print(UserChats)
+        print(GroupChats)
+        serialized_user_chats = []
+        for chat in UserChats:
+            if chat.user_A == user:
+                chatname = chat.user_B.username
+            else:
+                chatname = chat.user_A.username
+            serialized_user_chats.append({
+                "chat_room": chat.chat_room.id,
+                "name": chatname,
+                "photo": "/static/images/placeholder_profile_picture.webp"
+            })
+
+        for chat in GroupChats:
+            serialized_user_chats.append({
+                "chat_room": chat.chat_room.id,
+                "name": chat.name,
+                "photo": chat.chat_picture.url
+        })
+        data = {"username": user.username, "profile_pic": "/static/images/placeholder_profile_picture.webp", "user_chats": serialized_user_chats}
+
         return HttpResponse(json.dumps(data), content_type="application/json")
     else:
         return HttpResponseRedirect("/signup")
+    

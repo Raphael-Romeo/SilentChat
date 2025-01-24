@@ -7,8 +7,8 @@ from .views import *
 urlpatterns = [
     path('', home, name='home'),
     path('signup', signup_user, name='signup'),
-    path('login', login_user, name='login'),
-    path('logout', logout_user, name='logout'),
+    path('login/', login_user, name='login'),
+    path('logout/', logout_user, name='logout'),
     path('chat/<str:room_name>', chat_room, name='chat'),
     
     path('app', app, name='app'),

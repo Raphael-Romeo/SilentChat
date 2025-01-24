@@ -9,4 +9,3 @@ function get_user_details(){
 
     xhr.send(null);
 }
-

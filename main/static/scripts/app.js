@@ -385,6 +385,10 @@ function load_user_data(d){
     session_username = d.username;
     document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
     document.getElementById("settings-page-user-profile").src = d.profile_pic;
+    document.getElementById("direct-messages-container").innerHTML = "";
+    for(let i = 0; i < d.user_chats.length; ++i) {
+        document.getElementById("direct-messages-container").innerHTML += "<li class='direct-message-button'> <img class='direct-message-picture' src='"+ d.user_chats[i].photo +"'> <span class='direct-message-name'>" + d.user_chats[i].name + "</span> </li>";
+    }
 }
 
 function wait_for_fonts_to_load(){
