@@ -2,8 +2,10 @@ const side_panel_drag_handle = document.getElementById("side-panel-drag-handle")
 const application = document.getElementById("application-wrapper");
 const application_settings_page = document.getElementById("settings-page");
 const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
+const application_create_chat_room_page = document.getElementById("create-chatroom-page");
+const application_friends_page = document.getElementById("friends-page");
 
-const application_pages = [application_settings_page, application_chat_page_wrapper];
+const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
 let max_side_panel_width = null;
@@ -168,7 +170,8 @@ const chat_page_message_container = document.getElementById("chat-page-message-c
 const application_message_box_wrapper = document.getElementById("message-controls");
 const application_message_controls_wrapper = document.getElementById("message-controls-wrapper");
 
-function format_date(date){
+function format_date(timestamp){
+    let date = new Date(timestamp)
     let hours = String(date.getHours()).padStart(2, '0');
     let minutes = String(date.getMinutes()).padStart(2, '0');
     if (hours[0] == "0"){
@@ -178,14 +181,14 @@ function format_date(date){
     return timeHHMM;
 }
 
-function create_message_elem(t, username=null, date=null){
+function create_message_elem(t, username, timestamp){
     let message_element = document.createElement("div");
     message_element.classList.add("chat-page-message-wrapper");
     let message_text_element = document.createElement("div");
     message_text_element.classList.add("chat-page-message-content");
-    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:var(--text-color-lighter)'>" + username + "</span><span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(new Date()) + "</span></div>";
+    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:var(--text-color-lighter)'>" + username + "</span><span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(timestamp) + "</span></div>";
     message_element.appendChild(message_text_element);
-    if (username != null){
+    if (username == session_username){
         message_element.classList.add("self");
     }
     message_text_element.innerHTML = text_to_md_html(t);
@@ -193,7 +196,7 @@ function create_message_elem(t, username=null, date=null){
 }
 
 function is_message_valid(text){
-    if (text.replaceAll("\n","").replaceAll("<br>","").replaceAll(" ","").replaceAll(" ","").replaceAll("&nbsp;","") != ""){
+    if (text.replaceAll("\n","").replaceAll("<br>","").replaceAll(" ","").replaceAll(" ","").replaceAll("&nbsp;","") != ""){ // REDO THIS BETTER.
         return true;
     }
     return false;
@@ -219,7 +222,7 @@ function send_message(){
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        create_message_elem(message, session_username);
+        create_message_elem(message, session_username, Date.now());
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         init_send_animation();
@@ -377,33 +380,57 @@ function hide_side_panel(b){
     }
 }
 
-function load_message_data(message){
-    console.log(message);
+function load_message_data(d){
+    messages = d["messages"];
+    for (let i=0;i<messages.length;i++){
+        create_message_elem(messages[i].data, messages[i].sender, messages[i].timestamp);
+    }
 }
 
 
-function set_chatpage(chatroom){
+function set_chatpage(chatroom, elem=null){
+    current_chatroom_selector = elem;
     document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
-    get_messages(chatroom.chat_room);
-    
+    document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
+    chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
+    get_messages(chatroom.id);
 }
 
-function set_chatpage_transition(n){
+function set_chatpage_transition(n, elem=null){
+    if (!chat_room_selected){
+        chat_room_selected = true;
+        document.getElementById("chat-page-titlebar-content").classList.remove("hidden");
+        document.getElementById("chat-page-no-room-selected").classList.add("hidden");
+        disable_message_box(false);
+    }
     if (current_page == 1){
         application_page_transition_element.style.transition = "background 0.1s ease"
         application_page_transition_element.classList.remove("hidden");
         document.getElementById("chat-page-titlebar-content").classList.add("hidden");
-        setTimeout(function(){set_chatpage(n)}, 100);
+        setTimeout(function(){set_chatpage(n, elem)}, 100);
         setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 200)
         setTimeout(function(){application_page_transition_element.style.transition = null;document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300)
     }else{
-        set_chatpage(n);
+        set_chatpage(n, elem);
         set_page_view_transition(1);
     }
 }
 
 /* page initialisation */
+
+let chat_room_selected = false;
+
+function no_chat_room_selected(){
+    chat_room_selected = false;
+    document.getElementById("chat-page-titlebar-content").classList.add("hidden");
+    document.getElementById("chat-page-no-room-selected").classList.remove("hidden");
+    disable_message_box(true);
+}
+
+const chatrooms = [
+]
+let current_chatroom_selector = null;
 
 function load_user_data(d){
     document.getElementById("user-details-card-user-name").innerText = d.username;
@@ -412,27 +439,41 @@ function load_user_data(d){
     document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
     document.getElementById("settings-page-user-profile").src = d.profile_pic;
     if (d.user_chats.length > 0){
-        document.getElementById("direct-messages-container").innerHTML = "";
         for(let i = 0; i < d.user_chats.length; ++i) {
+            chatrooms.push(d.user_chats[i]);
             let userchat_element = document.createElement("li");
             userchat_element.classList.add("direct-message-button");
             userchat_element.data = d.user_chats[i];
             userchat_element.innerHTML = "<img class='direct-message-picture' src='" + d.user_chats[i].photo + "'><span class='direct-message-name'>" + d.user_chats[i].name + "</span>";
             document.getElementById("direct-messages-container").appendChild(userchat_element);
             userchat_element.onclick = function(){
-                if(!this.classList.contains("selected")) {
+                if(this != current_chatroom_selector) {
                     set_page_view_transition(1);
-                    set_chatpage_transition(this.data);
+                    set_chatpage_transition(this.data, this);
                     remove_class("selected");
                     this.classList.add("selected");
-                } 
+                }else if(current_page != 1){
+                    set_page_view_transition(1);
+                }
             }
-        }    
-    document.getElementById("direct-messages-container").children[0].click();
+        }
+        chat_room_selected = true;
+        document.getElementById("direct-messages-container").children[0].click();
+    }else{
+        let userchat_element = document.createElement("li");
+        userchat_element.classList.add("direct-message-button");
+        userchat_element.classList.add("create-chatroom");
+        userchat_element.innerHTML = "<span class='material-symbols-outlined'>add</span> <span class='direct-message-name'>" + "Create Chatroom" + "</span>";
+        userchat_element.onclick = function(){
+            if (current_page == 2) return;
+            set_page_view_transition(2);
+        }
+        document.getElementById("direct-messages-container").appendChild(userchat_element);
+        no_chat_room_selected();
     }
 }
 
-function remove_class (class_name) {
+function remove_class(class_name) {
     let selected = document.getElementsByClassName(class_name);
         for(let i = selected.length - 1; i >= 0; i--) {
             selected[i].classList.remove(class_name);
@@ -452,7 +493,7 @@ function load_page(){
     set_side_panel_fullscreen(false);
     set_page_view(1, false);
     setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
-    setTimeout(function(){toggle_bottom_panel(true);document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
+    setTimeout(function(){toggle_bottom_panel(true);if(chatrooms.length > 0) document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
 }
 
 /* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
@@ -466,28 +507,49 @@ function load_page(){
 const application_page_transition_element = document.getElementById("page-transition")
 let current_page = null;
 
-function set_page_view(n, auto=true){
+function previous_page(){
+    remove_class("selected");
+    let n = null;
+    if (page_history.length > 1){
+        page_history.pop();
+        n = page_history[page_history.length - 1];
+    }else{
+        n = default_page
+    }
+    set_page_view_transition(n, true);
+}
+
+function set_page_view(n, auto=true, from_history=false){
     if (n != current_page){
+        if (!from_history) page_history.push(n);
         if (current_page != null){
             application_pages[current_page].classList.remove("active");
         }
 
         current_page = n;
+        application_pages[n].classList.add("active");
 
         if (current_page == 0){ /* Settings page */
             if (auto) {toggle_bottom_panel(false);disable_message_box(true);hide_side_panel(true);} /*toggle_bottom_panel(false); */
-            application_pages[0].classList.add("active");
         }else if(current_page == 1){ /* Chat page */
-            if (auto) {toggle_bottom_panel(true);disable_message_box(false);hide_side_panel(false);}
-            application_pages[1].classList.add("active");
+            if (auto) {toggle_bottom_panel(true);if (chat_room_selected) disable_message_box(false);hide_side_panel(false);}
+            if (current_chatroom_selector != null){
+                remove_class("selected");current_chatroom_selector.classList.add("selected");
+            }
+        }else if(current_page == 2){ /* Create Chat Room page */
+            if (auto) {toggle_bottom_panel(true);disable_message_box(true);hide_side_panel(false);}
+            remove_class("selected");
+        }else if(current_page == 3){ /* Friends page */
+            if (auto) {toggle_bottom_panel(true);disable_message_box(true);hide_side_panel(false);}
+            remove_class("selected");document.getElementById("friends-page-button").classList.add("selected");
         }
     }
 }
 
-function set_page_view_transition(n){
+function set_page_view_transition(n, from_history=false){
     if (n != current_page){
         application_page_transition_element.classList.remove("hidden");
-        setTimeout(function(){set_page_view(n)}, 200);
+        setTimeout(function(){set_page_view(n, true, from_history)}, 200);
         setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 400)
     }
 }
@@ -497,6 +559,8 @@ function set_page_view_transition(n){
 
 
 let chat_page_focused = true;
+let default_page = 1;
+let page_history = [];
 const chat_page_titlebar_content = document.getElementById("chat-page-titlebar-content");
 
 onmousemove = function(e){
@@ -505,27 +569,55 @@ onmousemove = function(e){
     }
 }
 
-
-let default_page = 1;
 document.getElementById("settings-button").onclick = function(){
-    if (current_page == 0){
-        return;
-    }
+    if (current_page == 0) return;
     set_page_view_transition(0);
 }
 
+document.getElementById("create-chat-room-page-button").onclick = function(){
+    if (current_page == 2) return;
+    set_page_view_transition(2);
+}
+
+document.getElementById("friends-page-button").onclick = function(){
+    if (current_page == 3) return;
+    set_page_view_transition(3);
+    remove_class("selected");document.getElementById("friends-page-button").classList.add("selected");
+}
+
 document.getElementById("settings-page-close-button").onclick = function(){
-    set_page_view_transition(default_page);
+    previous_page();
+}
+
+document.getElementById("create-chat-room-page-close-button").onclick = function(){
+    previous_page();
+}
+
+document.getElementById("friends-page-close-button").onclick = function(){
+    previous_page();
 }
 
 document.getElementById("settings-page-logout-button").onclick = function(){
     window.location.href = "/logout";
 }
 
-document.getElementById("settings-page-theme-button").onclick = function(){
+const settings_page_theme_button = document.getElementById("settings-page-theme-button");
+settings_page_theme_button.onclick = function(){
     if (application.classList.contains("lightmode")){
         application.classList.remove("lightmode");
+        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">light_mode</span> Light Theme'
     }else{
         application.classList.add("lightmode");
+        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">dark_mode</span> Dark Theme'
     }
 }
+
+document.addEventListener("keydown", function(e){
+    if (e.key == "Escape"){
+        if (!document.activeElement.isContentEditable){
+            if (current_page != 1){
+                previous_page();
+            }
+        }
+    }
+})

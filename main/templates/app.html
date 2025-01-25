@@ -15,17 +15,15 @@
             <div class="h-wrapper">
                 <div id="side-panel-wrapper" class="side-panel-wrapper"> 
                     <div id="side-panel" class="side-panel content-hidden">
-                        <div class="side-panel-button">
+                        <div id="friends-page-button" class="side-panel-button">
                             <span class="material-symbols-outlined">emoji_people</span>
                             Friends
                         </div>
                         <div class="side-panel-direct-messages-wrapper">
                             <div class="side-panel-direct-messages-header">
-                                DIRECT MESSAGES
+                                CHAT ROOMS
                             </div>
                             <ul id="direct-messages-container" class="side-panel-direct-messages-container">
-                                <!-- div class="direct-messages-container-fade"></div -->
-                                <li class="direct-message-button"> <span class="direct-message-name">No chats yet</span> </li>
                             </ul>
                         </div>
                     </div>
@@ -34,8 +32,8 @@
                     <div id="side-panel-drag-handle" class="side-panel-drag-handle"><span class="material-symbols-outlined">drag_indicator</span></div>
                     <div id="pages-wrapper" class="pages-wrapper">
                         <div id="page-transition" class="page-transition hidden"></div>
-                        <div id="settings-page" class="settings-page-wrapper">
-                            <div class="settings-page-close-button" id="settings-page-close-button"><span class="material-symbols-outlined">close</span></div>
+                        <div id="settings-page" class="settings-page-wrapper page-wrapper-default">
+                            <div class="page-close-button" id="settings-page-close-button"><span class="material-symbols-outlined">close</span></div>
                             <h3 class="settings-page-title"> Settings </h3>
                             <hr class="settings-page-hr">
                             <h3 class="settings-page-header"> Account </h3>
@@ -48,7 +46,7 @@
                             <div class="settings-page-button be-careful"> <span class="material-symbols-outlined">delete</span> Delete account </div>
                             <hr class="settings-page-hr">
                             <h3 class="settings-page-header"> Appearance </h3>
-                            <div class="settings-page-button" id="settings-page-theme-button"> <span class="material-symbols-outlined">dark_mode</span> Dark Theme </div>
+                            <div class="settings-page-button" id="settings-page-theme-button"> <span class="material-symbols-outlined">light_mode</span> Light Theme </div>
                         </div>
                         <div class="chat-page-wrapper" id="chat-page-wrapper">
                             <div class="chat-page-titlebar"> 
@@ -56,16 +54,36 @@
                                     <div class="titlebar-content-user-profile-picture"><img id="titlebar-content-user-profile-picture-elem" src=""></div>
                                     <div class="titlebar-content-user-name-status-wrapper">
                                         <div id="titlebar-content-user-name" class="titlebar-content-user-name"></div>
-                                        <div id="titlebar-content-user-status" class="titlebar-content-user-status">Last seen 3 years ago</div>
+                                        <div id="titlebar-content-user-status" class="titlebar-content-user-status">User status</div>
                                     </div>
                                 </div>
+                            </div>
+                            <div id="chat-page-no-room-selected" class="chat-page-no-room-selected hidden">
+                                <h2 class="chat-page-header-text"> 
+                                    <span class="material-symbols-outlined">sentiment_sad</span>
+                                    <br>
+                                    <br>
+                                    Oops, no chat rooms yet!
+                                    <br>
+                                    <br>
+                                    <span class="chat-room-create-link" id="create-chat-room-page-button">Click here to create a chatroom!</span>
+                                </h2>
                             </div>
                             <div class="chat-page" id="chat-page">
                                 <div class="chat-page-message-container" id="chat-page-message-container">
                                 </div>
                             </div>
                         </div>
-                        <!-- Other page types here -->
+                        <div id="create-chatroom-page" class="create-chatroom-page-wrapper page-wrapper-default">
+                            <div class="page-close-button" id="create-chat-room-page-close-button"><span class="material-symbols-outlined">close</span></div>
+                            <h3 class="page-title"> Create chatroom </h3>
+                            <hr class="page-hr">
+                        </div>
+                        <div id="friends-page" class="friends-page-wrapper page-wrapper-default">
+                            <div class="page-close-button" id="friends-page-close-button"><span class="material-symbols-outlined">close</span></div>
+                            <h3 class="page-title"> Friends </h3>
+                            <hr class="page-hr">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,7 +104,7 @@
                     <div id="message-controls" class="message-controls">
                         <div class="embed-button button-icon"><span class="material-symbols-outlined">add_circle</span></div>
                         <div class="message-input-wrapper empty" id="message-input-wrapper">
-                            <div class="placeholdertext"> Send message to Mary </div>
+                            <div class="placeholdertext" id="message-input-placeholdertext"></div>
                             <div contenteditable="true" spellcheck="false" class="message-input" placeholder="Send message to user" name="message-box" id="message-input" rows="1" resizeable="false"></div>
                         </div>
                         <div class="emoji-button button-icon"><span class="material-symbols-outlined">mood</span></div>

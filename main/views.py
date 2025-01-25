@@ -120,7 +120,7 @@ def app_get_user_details(request):
             else:
                 chatname = chat.user_A.username
             serialized_user_chats.append({
-                "chat_room": chat.chat_room.id,
+                "id": chat.chat_room.id,
                 "name": chatname,
                 "photo": "/static/images/placeholder_profile_picture.webp",
                 "type": "user"
@@ -128,7 +128,7 @@ def app_get_user_details(request):
 
         for chat in GroupChats:
             serialized_user_chats.append({
-                "chat_room": chat.chat_room.id,
+                "id": chat.chat_room.id,
                 "name": chat.name,
                 "photo": chat.chat_picture.url,
                 "type": "group"
