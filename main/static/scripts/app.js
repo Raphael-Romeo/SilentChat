@@ -458,7 +458,8 @@ function load_user_data(d){
             }
         }
         chat_room_selected = true;
-        document.getElementById("direct-messages-container").children[0].click();
+        //document.getElementById("direct-messages-container").children[0].click();
+        set_chatpage(chatrooms[0], document.getElementById("direct-messages-container").children[0]);
     }else{
         let userchat_element = document.createElement("li");
         userchat_element.classList.add("direct-message-button");

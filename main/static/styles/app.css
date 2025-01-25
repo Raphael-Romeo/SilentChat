@@ -37,6 +37,8 @@ body, .application-wrapper{
 	--secondary-color-transparent: #1119;
 	--secondary-color-transparent-identical-on-primary: #22222280;
 	--primary-color-transparent: #0008;
+	--button-hover-color:#0008;
+	--button-selected-color:black;
 	--primary-color-very-transparent:rgba(255,255,255,0.2);
 	/*--secondary-color: #252525; Brighter secondary so I can see better */
 	--side-panel-width: 0px; /* for a smaller version set this to 64px */
@@ -63,19 +65,25 @@ body, .application-wrapper{
 }
 
 .application-wrapper.lightmode{
+	background: linear-gradient(0deg, white, rgba(240, 240, 240));
 	--primary-color:white;
-	--secondary-color:#f3f3f3;
+	--secondary-color:#fff;
+	--button-hover-color:#f6f6f6;
+	--button-selected-color:#ededed;
 	--secondary-color-transparent:#f3f3f399;
 	--text-color:black;
 	--text-color-light:#555;
 	--text-color-lighter:#616161;
-	--title-bar-box-shadow:rgb(90 90 90 / 5%) 0px 54px 55px, rgb(176 176 176 / 12%) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgb(176 176 176 / 2%) 0px 12px 13px, rgb(167 167 167 / 9%) 0px -3px 5px;
-	--side-panel-box-shadow:0 54px 56px 2px rgb(177 177 177 / 59%);
-	--secondary-color-transparent-identical-on-primary:#d4d4d480;
-	--text-box-box-shadow:rgb(90 90 90 / 5%) 0px 54px 55px, rgb(176 176 176 / 12%) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgb(176 176 176 / 2%) 0px 12px 13px, rgb(167 167 167 / 9%) 0px -3px 5px;
+	--title-bar-box-shadow:rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	--side-panel-box-shadow:rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	--secondary-color-transparent-identical-on-primary:#ffffff80;
+	--text-box-box-shadow:rgba(149, 157, 165, 0.2) 0px 8px 24px;
 	--primary-color-transparent:#ffffff99;
 	--primary-color-very-transparent:rgba(0,0,0,0.2);
 }
+
+.application-wrapper.lightmode > .h-wrapper > .page-view{box-shadow:var(--title-bar-box-shadow)}
+.application-wrapper.lightmode > .h-wrapper > .side-panel-wrapper{box-shadow:var(--title-bar-box-shadow)}
 
 .application-wrapper.loading{
 	pointer-events:none;
@@ -201,12 +209,12 @@ body, .application-wrapper{
 
 .side-panel-button:hover{
 	color:var(--text-color);
-	background:var(--primary-color-transparent);
+	background:var(--button-hover-color);
 }
 
 .side-panel-button:active, .side-panel-button.selected{
 	color:var(--text-color);
-	background:var(--primary-color);
+	background:var(--button-selected-color);
 }
 
 .side-panel-direct-messages-wrapper{
@@ -273,13 +281,13 @@ body, .application-wrapper{
 }
 
 .direct-message-button:hover{
-	background:var(--primary-color-transparent);
+	background:var(--button-hover-color);
 	color:var(--text-color);
 }
 
 .direct-message-button:active, .direct-message-button.selected{
 	color:var(--text-color);
-	background:var(--primary-color);
+	background:var(--button-selected-color);
 }
 
 .direct-message-picture{
@@ -369,11 +377,11 @@ body, .application-wrapper{
 }
 
 .page-close-button:hover{
-	background: var(--primary-color-very-transparent);
+	background: var(--button-hover-color);
 }
 
 .page-close-button:active{
-	background: var(--text-color);
+	background: var(--button-selected-color);
 }
 
 .settings-page-wrapper.active, .page-wrapper-default.active{
