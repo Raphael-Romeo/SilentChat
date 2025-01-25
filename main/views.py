@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -17,7 +17,7 @@ def app(request):
     if request.user.is_authenticated:
         return render(request, 'app.html')
     else:
-        return HttpResponseRedirect('/signup')
+        return HttpResponseRedirect('/login')
 
 # User registration and login/logout views
 def signup_user(request):
@@ -99,28 +99,41 @@ def app_get_user_details(request):
 
         return HttpResponse(json.dumps(data), content_type="application/json")
     else:
-        return HttpResponseRedirect("/signup")
+        return HttpResponseForbidden()
 
 
 def user_in_chatroom(user, chatroom):
-    return True
+    if chatroom.chat_room_type == "user":
+        cr = UserChatRoom.objects.get(chat_room=chatroom)
+        if cr.user_A == user or cr.user_B == user:
+            return True
+    else:
+        cr = GroupChatRoom.objects.get(chat_room=chatroom)
+        if cr.users.all().contains(user):
+            return True
+    return False
 
 
 def app_get_messages(request, chatroom_id:int):
     if request.user.is_authenticated:
-        chatroom = ChatRoom.objects.get(id = chatroom_id)
+        try:
+            chatroom = ChatRoom.objects.get(id = chatroom_id)
+        except:
+            return HttpResponseNotFound()
         messages = Message.objects.all().filter(chatroom_id=chatroom_id)
         if user_in_chatroom(request.user, chatroom):
             data = {"messages": []}
             for message in messages:
+                owner = message.sender == request.user
                 data["messages"].append({
                     "id": message.id,
                     "sender": message.sender.username,
                     "data": message.data,
                     "timestamp": str(message.timestamp),
+                    "owner": owner,
                 })
             return HttpResponse(json.dumps(data), content_type="application/json")
-    return HttpResponseRedirect("/signup")
+    return HttpResponseForbidden()
     
 
 def app_post_message(request):
@@ -139,4 +152,4 @@ def app_post_message(request):
                 )
                 new_message.save()
                 return HttpResponse(json.dumps(data), content_type="application/json")
-    return HttpResponseRedirect("/signup")
+    return HttpResponseForbidden()

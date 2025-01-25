@@ -293,6 +293,7 @@ body, .application-wrapper{
 .direct-message-picture{
 	min-width:32px;
 	height:32px;
+	width:32px;
 	border-radius:50%;
 	user-select:none;
 	transition:filter 0.2s ease, height 0.2s ease, width 0.2s ease;
@@ -687,7 +688,12 @@ body, .application-wrapper{
 	padding:15px;
 	padding-top:5px;
 	padding-bottom:5px;
-	max-width:calc(100% - 30px)
+	max-width:calc(100% - 30px);
+	transition:opacity 0.2s ease;
+}
+
+.chat-page-message-wrapper.loading{
+	opacity:40%;
 }
 
 .chat-page-message-content{
@@ -699,7 +705,12 @@ body, .application-wrapper{
 }
 
 .chat-page-message.self{
-	align-self:flex-end;
+}
+
+.message-header{
+	display:flex;
+	gap:10px;
+	align-items:center;
 }
 
 .bottom-panel{

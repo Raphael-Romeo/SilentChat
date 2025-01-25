@@ -25,7 +25,7 @@ function get_messages(chatroom_id){
 }
 
 
-function post_message(chatroom_id, message){
+function post_message(chatroom_id, message, server_response_id){
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/app/post/message", true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -36,4 +36,8 @@ function post_message(chatroom_id, message){
         chatroom_id: chatroom_id,
         message: message
     }));
+
+    xhr.onload = () => {
+        document.getElementById("message-" + server_response_id).classList.remove("loading");
+    }
 }

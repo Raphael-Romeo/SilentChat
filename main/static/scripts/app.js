@@ -4,17 +4,18 @@ const application_settings_page = document.getElementById("settings-page");
 const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
 const application_create_chat_room_page = document.getElementById("create-chatroom-page");
 const application_friends_page = document.getElementById("friends-page");
-let chatSocket_messages = null;
-
 
 const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
+
+let chatSocket_messages = null;
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
 let max_side_panel_width = null;
 let minimum_side_panel_width = 215;
 let compact_side_panel_mode = false;
 let app_fullscreen = false;
-let session_username = null;
+let session_user = null;
+let sent_message_identifier = 0;
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -183,14 +184,18 @@ function format_date(timestamp){
     return timeHHMM;
 }
 
-function create_message_elem(t, username, timestamp){
+function create_message_elem(t, username, timestamp, owner=false, waiting_for_server=false, this_sent_message_identifier=null){
     let message_element = document.createElement("div");
+    if (waiting_for_server){
+        message_element.classList.add("loading");
+        message_element.id = "message-" + this_sent_message_identifier;
+    }
     message_element.classList.add("chat-page-message-wrapper");
     let message_text_element = document.createElement("div");
     message_text_element.classList.add("chat-page-message-content");
-    message_element.innerHTML = "<div class='message-header' style='display:flex;gap:10px;align-items:center;'><span class='strong' style='color:var(--text-color-lighter)'>" + username + "</span><span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(timestamp) + "</span></div>";
+    message_element.innerHTML = "<div class='message-header'><span class='strong' style='color:var(--text-color-lighter)'>" + username + "</span><span style='color:gray;font-weight:100;font-size:12px;'>" + format_date(timestamp) + "</span></div>";
     message_element.appendChild(message_text_element);
-    if (username == session_username){
+    if (owner){
         message_element.classList.add("self");
     }
     message_text_element.innerHTML = text_to_md_html(t);
@@ -221,14 +226,15 @@ function init_send_animation(){
 
 function send_message(){
     let message = application_message_input.innerHTML;
-    let cleaned_message = application_message_input.innerText;
+    let message_raw_text = application_message_input.innerText;
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        post_message(current_chatroom_selector.data.id, cleaned_message);
-        const message_id = send_message_socket(current_chatroom_selector.data.id, cleaned_message, session_username);
+        let this_sent_message_identifier = ++sent_message_identifier;
+        post_message(current_chatroom_selector.data.id, message_raw_text, this_sent_message_identifier);
+        const message_id = send_message_socket(current_chatroom_selector.data.id, message_raw_text, session_user.username);
         sessionStorage.setItem(message_id, message_id);
-        create_message_elem(message, session_username, Date.now());
+        create_message_elem(message, session_user.username, Date.now(), true, true, this_sent_message_identifier);
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         init_send_animation();
@@ -389,8 +395,9 @@ function hide_side_panel(b){
 function load_message_data(d){
     messages = d["messages"];
     for (let i=0;i<messages.length;i++){
-        create_message_elem(messages[i].data, messages[i].sender, messages[i].timestamp);
+        create_message_elem(messages[i].data.replaceAll('\n','<br>'), messages[i].sender, messages[i].timestamp, messages[i].owner, false);
     }
+    application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight});
 }
 
 function set_chatpage(chatroom, elem=null){
@@ -451,9 +458,9 @@ const chatrooms = [
 let current_chatroom_selector = null;
 
 function load_user_data(d){
+    session_user = new User(d.id, d.username, d.profile_pic);
     document.getElementById("user-details-card-user-name").innerText = d.username;
     document.getElementById("settings-page-user-name").innerText = d.username;
-    session_username = d.username;
     document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
     document.getElementById("settings-page-user-profile").src = d.profile_pic;
     if (d.user_chats.length > 0){
@@ -513,6 +520,7 @@ function load_page(){
     set_page_view(1, false);
     setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
     setTimeout(function(){toggle_bottom_panel(true);if(chatrooms.length > 0) document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
+    setTimeout(function(){application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight})}, 500);
 }
 
 /* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
@@ -566,11 +574,14 @@ function set_page_view(n, auto=true, from_history=false){
     }
 }
 
+let current_transition_id = 0;
+
 function set_page_view_transition(n, from_history=false){
     if (n != current_page){
+        let this_transition = ++current_transition_id;
         application_page_transition_element.classList.remove("hidden");
-        setTimeout(function(){set_page_view(n, true, from_history)}, 200);
-        setTimeout(function(){application_page_transition_element.classList.add("hidden");}, 400)
+        setTimeout(function(){if (this_transition != current_transition_id) return;set_page_view(n, true, from_history)}, 200);
+        setTimeout(function(){if (this_transition != current_transition_id) return;application_page_transition_element.classList.add("hidden");}, 400)
     }
 }
 
@@ -641,6 +652,3 @@ document.addEventListener("keydown", function(e){
         }
     }
 })
-
-
-
