@@ -65,44 +65,6 @@ def logout_user(request):
     return render(request, 'index.html')
 
 
-def chat_room(request, room_name):
-    search_query = request.GET.get('search', '')
-    users = User.objects.exclude(id=request.user.id)
-    chats = Message.objects.filter(
-        (Q(sender=request.user) & Q(receiver__username=room_name) |
-        Q(receiver=request.user) & Q(sender__username=room_name))
-    )
-
-    if search_query:
-        chats = chats.filter(Q(content__icontains=search_query))
-
-    chats = chats.order_by('timestamp')
-    user_last_message = []
-
-    for user in users:
-        last_message = Message.objects.filter(
-            (Q(sender=request.user) & Q(receiver=user) |
-            Q(receiver=request.user) & Q(sender=user))
-        ).order_by('-timestamp').first()
-
-        user_last_message.append({
-            'user': user,
-            'last_message': last_message
-        })
-
-    user_last_message.sort(
-        key=lambda x: x['last_message'].timestamp if x['last_message'] else None,
-        reverse=True
-    )
-    
-    return render(request, 'chat.html', {
-        'room_name': room_name,
-        'chats': chats,
-        'users': user_last_message,
-        'search_query': search_query,
-        'user_last_message': user_last_message
-    })
-
 
 # API TYPE CALLS (Functions here return JSON data).
 

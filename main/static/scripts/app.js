@@ -5,6 +5,7 @@ const application_chat_page_wrapper = document.getElementById("chat-page-wrapper
 const application_create_chat_room_page = document.getElementById("create-chatroom-page");
 const application_friends_page = document.getElementById("friends-page");
 
+
 const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
@@ -217,6 +218,27 @@ function init_send_animation(){
     update_message_box_height();
 }
 
+chatSocket_messages.onmessage = function(e){
+    let data = JSON.parse(e.data);
+    const last_message_id = sessionStorage.getItem(data.message_id);
+    if (last_message_id != data.message_id){
+        create_message_elem(data.message, data.sender, Date.now());
+        application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
+    }
+}
+
+function send_message_socket(chatroom_id, message, sender){
+    const message_id = Date.now();
+    chatSocket_messages.send(JSON.stringify({
+        'message_id': message_id,
+        'chatroom_id': chatroom_id,
+        'message': message,
+        'sender': sender
+    }));
+    return message_id;
+}
+
+
 function send_message(){
     let message = application_message_input.innerHTML;
     let cleaned_message = application_message_input.innerText;
@@ -224,16 +246,14 @@ function send_message(){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
         post_message(current_chatroom_selector.data.id, cleaned_message);
+        const message_id = send_message_socket(current_chatroom_selector.data.id, cleaned_message, session_username);
+        sessionStorage.setItem(message_id, message_id);
         create_message_elem(message, session_username, Date.now());
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         init_send_animation();
     }
     return;
-}
-
-function save_message_to_server(message, chatroom_id, sender){
-    return true;
 }
 
 function update_message_box_height(){
@@ -393,7 +413,6 @@ function load_message_data(d){
     }
 }
 
-
 function set_chatpage(chatroom, elem=null){
     current_chatroom_selector = elem;
     document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
@@ -507,8 +526,9 @@ function load_page(){
 /* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
 /* If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase.
 
-/* page initialisation */
+/
 
+/* page initialisation */
 
 /* App navigation */
 const application_page_transition_element = document.getElementById("page-transition")
@@ -628,3 +648,7 @@ document.addEventListener("keydown", function(e){
         }
     }
 })
+
+
+
+

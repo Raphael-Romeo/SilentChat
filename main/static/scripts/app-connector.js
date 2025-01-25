@@ -1,3 +1,13 @@
+/* WebSocket */
+
+const chatSocket_messages = new WebSocket(
+    'ws://' + window.location.host + '/ws/app/socket/' + "messages"  + '/'
+);
+
+const chatSocket_app = new WebSocket(
+    'ws://' + window.location.host + '/ws/app/socket/' + "app" + '/'
+);
+
 function get_user_details(){
     const xhr = new XMLHttpRequest();
     xhr.open("GET", "/app/get/user_details", true);
@@ -28,11 +38,6 @@ function post_message(chatroom_id, message){
     xhr.setRequestHeader("Content-Type", "application/json");
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
-    
-    console.log(JSON.stringify({
-        chatroom_id: chatroom_id,
-        message: message
-    }));
 
     xhr.send(JSON.stringify({
         chatroom_id: chatroom_id,
