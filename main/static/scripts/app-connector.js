@@ -1,12 +1,5 @@
 /* WebSocket */
 
-const chatSocket_messages = new WebSocket(
-    'ws://' + window.location.host + '/ws/app/socket/' + "messages"  + '/'
-);
-
-const chatSocket_app = new WebSocket(
-    'ws://' + window.location.host + '/ws/app/socket/' + "app" + '/'
-);
 
 function get_user_details(){
     const xhr = new XMLHttpRequest();

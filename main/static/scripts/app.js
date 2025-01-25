@@ -4,6 +4,7 @@ const application_settings_page = document.getElementById("settings-page");
 const application_chat_page_wrapper = document.getElementById("chat-page-wrapper");
 const application_create_chat_room_page = document.getElementById("create-chatroom-page");
 const application_friends_page = document.getElementById("friends-page");
+let chatSocket_messages = null;
 
 
 const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
@@ -218,27 +219,6 @@ function init_send_animation(){
     update_message_box_height();
 }
 
-chatSocket_messages.onmessage = function(e){
-    let data = JSON.parse(e.data);
-    const last_message_id = sessionStorage.getItem(data.message_id);
-    if (last_message_id != data.message_id){
-        create_message_elem(data.message, data.sender, Date.now());
-        application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
-    }
-}
-
-function send_message_socket(chatroom_id, message, sender){
-    const message_id = Date.now();
-    chatSocket_messages.send(JSON.stringify({
-        'message_id': message_id,
-        'chatroom_id': chatroom_id,
-        'message': message,
-        'sender': sender
-    }));
-    return message_id;
-}
-
-
 function send_message(){
     let message = application_message_input.innerHTML;
     let cleaned_message = application_message_input.innerText;
@@ -419,6 +399,19 @@ function set_chatpage(chatroom, elem=null){
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
     document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
     chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
+    if(chatSocket_messages != null) {
+        chatSocket_messages.close();
+    }
+    chatSocket_messages = new_websocket_messages(chatroom.id);
+    chatSocket_messages.onmessage = function(e){
+        let data = JSON.parse(e.data);
+        const last_message_id = sessionStorage.getItem(data.message_id);
+        if (last_message_id != data.message_id){
+            create_message_elem(data.message, data.sender, Date.now());
+            application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
+        }
+    }
+
     get_messages(chatroom.id);
 }
 
@@ -648,7 +641,6 @@ document.addEventListener("keydown", function(e){
         }
     }
 })
-
 
 
 

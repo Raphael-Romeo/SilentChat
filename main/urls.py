@@ -3,6 +3,7 @@
 from django.contrib import admin
 from django.urls import path
 from .views import *
+from .consumers import ChatConsumer, PresenceConsumer
 
 urlpatterns = [
     path('', home, name='home'),

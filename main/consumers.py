@@ -2,18 +2,19 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class ChatConsumer(AsyncWebsocketConsumer):
-
     async def connect(self):
-        self.socket_name = self.scope['url_route']['kwargs']['socket_name']
+        await self.accept()
+        self.socket_name = self.scope['url_route']['kwargs']['chatroom_id']
+        print(self.socket_name)
         await self.channel_layer.group_add(
             self.socket_name,
             self.channel_name
         )
-        await self.accept()
 
+    async def disconnect(self, code):
+        return await super().disconnect(code)
+    
 
-    async def disconnect(self, close_code):
-        pass
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -39,8 +40,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
         chatroom_id = event['chatroom_id']
 
         await self.send(text_data=json.dumps({
+            'type': 'sendMessage',
             'message_id': message_id,
+            'chatroom_id': chatroom_id,
             'message': message,
-            'sender': sender,
-            'chatroom_id': chatroom_id
-        })) 
+            'sender': sender
+        }))
+
+class PresenceConsumer(AsyncWebsocketConsumer):
+    
+    connections = []
+    
+    async def connect(self):
+        await self.accept()
+        self.user = self.scope['user']
+        self.socket_name = self.scope['url_route']['kwargs']
+        self.connections.append(self)
+        self.update_indicator(msg="Connected")
+    
+    async def disconnect(self, code):
+        self.update_indicator(msg="Disconnected")
+        self.connections.remove(self)
+        return await super().disconnect(code)
+    
+    async def update_indicator(self, msg):
+        print("test")
+        for connection in self.connections:
+            connection.send(text_data=json.dumps({
+                'message': f"{self.user.username} {msg}",
+                'online': f"{len(self.connections)}",
+                'users': [f"{user.scope['user'].username}" for user in self.connections],
+            }))
+
+    async def receive(self, text_data):
+        pass
