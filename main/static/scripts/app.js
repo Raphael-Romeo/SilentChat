@@ -219,15 +219,21 @@ function init_send_animation(){
 
 function send_message(){
     let message = application_message_input.innerHTML;
+    let cleaned_message = application_message_input.innerText;
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
+        post_message(current_chatroom_selector.data.id, cleaned_message);
         create_message_elem(message, session_username, Date.now());
         clear_message_input();
         application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         init_send_animation();
     }
     return;
+}
+
+function save_message_to_server(message, chatroom_id, sender){
+    return true;
 }
 
 function update_message_box_height(){

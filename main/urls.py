@@ -21,5 +21,6 @@ urlpatterns = [
     # ...
 
     # POST
+    path('app/post/message', app_post_message),
     # ...
 ]

@@ -139,17 +139,18 @@ def app_get_user_details(request):
     else:
         return HttpResponseRedirect("/signup")
 
+
 def user_in_chatroom(user, chatroom):
     return True
-    
 
 
 def app_get_messages(request, chatroom_id:int):
     if request.user.is_authenticated:
         chatroom = ChatRoom.objects.get(id = chatroom_id)
+        messages = Message.objects.all().filter(chatroom_id=chatroom_id)
         if user_in_chatroom(request.user, chatroom):
             data = {"messages": []}
-            for message in chatroom.messages.all():
+            for message in messages:
                 data["messages"].append({
                     "id": message.id,
                     "sender": message.sender.username,
@@ -159,3 +160,21 @@ def app_get_messages(request, chatroom_id:int):
             return HttpResponse(json.dumps(data), content_type="application/json")
     return HttpResponseRedirect("/signup")
     
+
+def app_post_message(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            chatroom_id = data['chatroom_id']
+            message = data['message']
+            chatroom = ChatRoom.objects.get(id = chatroom_id)
+            sender = User.objects.get(id = request.user.id)
+            if user_in_chatroom(request.user, chatroom):
+                new_message = Message.objects.create(
+                    chatroom_id=chatroom,
+                    sender=sender,
+                    data=message
+                )
+                new_message.save()
+                return HttpResponse(json.dumps(data), content_type="application/json")
+    return HttpResponseRedirect("/signup")

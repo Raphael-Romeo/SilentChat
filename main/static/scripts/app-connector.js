@@ -20,3 +20,22 @@ function get_messages(chatroom_id){
 
     xhr.send(null);
 }
+
+
+function post_message(chatroom_id, message){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/message", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    
+    console.log(JSON.stringify({
+        chatroom_id: chatroom_id,
+        message: message
+    }));
+
+    xhr.send(JSON.stringify({
+        chatroom_id: chatroom_id,
+        message: message
+    }));
+}
