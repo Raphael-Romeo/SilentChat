@@ -39,6 +39,23 @@ function post_message(chatroom_id, message, server_response_id){
     }
 }
 
+function post_user_chatroom(user_A, user_B){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/user_chatroom", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+    xhr.send(JSON.stringify({
+        user_A: user_A,
+        user_B: user_B
+    }));
+
+    xhr.onload = () => {
+        location.reload();
+    }
+}
+
 
 function post_group_chatroom(name, users){
     const xhr = new XMLHttpRequest();
@@ -87,7 +104,7 @@ function post_delete_message(message_id){
     }
 }
 
-function post_delete_chatroom(chatroom_id){
+function post_delete_chatroom(chatroom_id, chatroom_type){
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/app/post/delete_chatroom", true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -95,7 +112,8 @@ function post_delete_chatroom(chatroom_id){
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
 
     xhr.send(JSON.stringify({
-        chatroom_id: chatroom_id
+        chatroom_id: chatroom_id,
+        chatroom_type: chatroom_type,
     }));
 
     xhr.onload = () => {

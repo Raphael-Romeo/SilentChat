@@ -29,6 +29,8 @@ admin.site.register(UserProfile)
 
 # CHAT ROOMS MODELS
 
+# The ChatRoom is not deleted when the User or GroupChatRoom is deleted
+
 class ChatRoom(models.Model):
     CHAT_ROOM_TYPES = (
         ('user', 'User Chat Room'),
@@ -42,6 +44,7 @@ class ChatRoom(models.Model):
         return f"Chat room {self.id}"
 
 admin.site.register(ChatRoom)
+
 
 class UserChatRoom(models.Model):
     chat_room = models.OneToOneField(ChatRoom, on_delete=models.CASCADE)
@@ -61,7 +64,7 @@ class GroupChatRoom(models.Model):
     users = models.ManyToManyField(User)
 
     def __str__(self):
-        return f"Group chat room {self.id}"
+        return f"Group chat room id: {self.id}"
 
 admin.site.register(GroupChatRoom)
 
@@ -77,6 +80,6 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.sender.username}: {self.data}"
+        return f"{self.sender.username}: {self.data} | id: {self.id}"
 
 admin.site.register(Message)

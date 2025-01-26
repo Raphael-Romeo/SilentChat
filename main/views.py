@@ -159,6 +159,19 @@ def app_post_message(request):
                 return HttpResponse(json.dumps(data), content_type="application/json")
     return HttpResponseForbidden()
 
+def app_post_user_chatroom(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            user_A = User.objects.get(id=data['user_A'])
+            user_B = User.objects.get(id=data['user_B'])
+            chatroom = ChatRoom.objects.create(chat_room_type="user")
+            chatroom.save()
+            user_chatroom = UserChatRoom.objects.create(chat_room=chatroom, user_A=user_A, user_B=user_B)
+            user_chatroom.save()
+            return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
+    return HttpResponseForbidden()
+
 def app_post_group_chatroom(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -190,10 +203,17 @@ def app_post_delete_chatroom(request):
         if request.method == 'POST':
             data = json.loads(request.body)
             chatroom_id = data['chatroom_id']
-            chatroom = ChatRoom.objects.get(id=chatroom_id)
-            if chatroom.creator == request.user:
-                chatroom.delete()
-                return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+            chatroom_type = data['chatroom_type']
+            if chatroom_type == "user":
+                chatroom = UserChatRoom.objects.get(chat_room=chatroom_id)
+                if chatroom.user_A == request.user or chatroom.user_B == request.user:
+                    chatroom.delete()
+                    return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+            else:
+                chatroom = GroupChatRoom.objects.get(chat_room=chatroom_id)
+                if GroupChatRoom.objects.get(chat_room=chatroom_id).creator == request.user:
+                    chatroom.delete()
+                    return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
     return HttpResponseForbidden()
 
 def app_post_delete_message(request):
