@@ -64,5 +64,5 @@ class PresenceConsumer(AsyncWebsocketConsumer):
            await connection.send(text_data=json.dumps({
                "msg": f"{self.user} {msg}",
                "online": f"{len(self.connections)}",
-               "users": [f"{user.scope['user']}" for user in self.connections],
+               "users_id" : [str(connection.user.id) for connection in self.connections]
             }))

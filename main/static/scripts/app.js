@@ -667,8 +667,8 @@ chatSocket_app.onmessage = function(e){
 
 function check_presence(data){
     let user_status = document.getElementById("titlebar-content-user-status");
-    for (let i=0;i<data.users.length;++i){
-        if (data.users[i] == current_chatroom.name){
+    for (let i=0;i<data.users_id.length;++i){
+        if (data.users_id[i] == current_chatroom.id){
             user_status.innerText = "Online";
             return;
         }
