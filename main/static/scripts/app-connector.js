@@ -39,6 +39,7 @@ function post_message(chatroom_id, message, server_response_id){
     }
 }
 
+
 function post_group_chatroom(name, users){
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/app/post/group_chatroom", true);

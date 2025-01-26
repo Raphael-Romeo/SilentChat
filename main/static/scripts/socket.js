@@ -4,10 +4,19 @@ function new_websocket_messages(chatroom_id){
     );
 }
 
+let chatSocket_app = null;
+
 function new_websocket_app(){
-    return new WebSocket(
+    let socket =  new WebSocket(
         'ws://' + window.location.host + '/ws/app/socket/app/'
     );
+    socket.onmessage = function(e){
+        let data = JSON.parse(e.data);
+        if(data.type == "presence_indicator"){
+            check_presence(data);
+        }
+    }
+    return socket;
 }
 
 function send_message_socket(chatroom_id, message, sender){

@@ -8,7 +8,6 @@ const application_friends_page = document.getElementById("friends-page");
 const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
 
 let chatSocket_messages = null;
-let chatSocket_app = new_websocket_app()
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
 let max_side_panel_width = null;
@@ -18,7 +17,7 @@ let app_fullscreen = false;
 let session_user = null;
 let sent_message_identifier = 0;
 let current_chatroom = null;
-let isTyping = false;
+let latest_presence = null;
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -409,13 +408,25 @@ function set_chatpage(chatroom, elem=null){
     current_chatroom = chatroom;
     console.log(chatroom);
     document.getElementById("titlebar-content-user-name").innerText = chatroom.user.username;
+    if (chatroom.type == user){
+        document.getElementById("titlebar-content-user-status").style.display = null;
+        let this_status = null;
+        if (latest_presence.includes(chatroom.user.id)){
+            this_status = "Online";
+        }else{
+            this_status = "Offline";
+        }
+        document.getElementById("titlebar-content-user-status").innerText = this_status;
+    }else{
+        document.getElementById("titlebar-content-user-status").style.display = "None";
+    }
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
     document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
-    //document.getElementById("titlebar-content-user-status").innerText = check_presence
     chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
     if(chatSocket_messages != null) {
         chatSocket_messages.close();
     }
+
     chatSocket_messages = new_websocket_messages(chatroom.id);
     chatSocket_messages.onmessage = function(e){
         let data = JSON.parse(e.data);
@@ -463,12 +474,8 @@ const chatrooms = [
 let current_chatroom_selector = null;
 const user_status_elems = {}
 
-function load_user_data(d){
-    session_user = new User(d.id, d.username, d.profile_pic);
-    document.getElementById("user-details-card-user-name").innerText = d.username;
-    document.getElementById("settings-page-user-name").innerText = d.username;
-    document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
-    document.getElementById("settings-page-user-profile").src = d.profile_pic;
+function set_direct_messages_chat_rooms(d){
+    document.getElementById("direct-messages-container").innerHTML = "";
     if (d.user_chats.length > 0){
         for(let i = 0; i < d.user_chats.length; ++i) {
             chatrooms.push(d.user_chats[i]);
@@ -512,6 +519,16 @@ function load_user_data(d){
         document.getElementById("direct-messages-container").appendChild(userchat_element);
         no_chat_room_selected();
     }
+}
+
+function load_user_data(d){
+    session_user = new User(d.id, d.username, d.profile_pic);
+    document.getElementById("user-details-card-user-name").innerText = d.username;
+    document.getElementById("settings-page-user-name").innerText = d.username;
+    document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
+    document.getElementById("settings-page-user-profile").src = d.profile_pic;
+    set_direct_messages_chat_rooms(d);
+    chatSocket_app = new_websocket_app();
 }
 
 function remove_class(class_name) {
@@ -638,17 +655,8 @@ document.addEventListener("keydown", function(e){
     }
 })
 
-
-/* Presence handling */
-chatSocket_app.onmessage = function(e){
-    let data = JSON.parse(e.data);
-    if(data.type == "presence_indicator"){
-        setTimeout(function(){check_presence(data)}, 100);
-    }
-}
-
 function set_status(user_id, status){
-    if (current_chatroom.type == "user"){
+    if (current_chatroom != null && current_chatroom.type == "user"){
         if (user_id == current_chatroom.user.id){
             document.getElementById("titlebar-content-user-status").innerText = status;
         }
@@ -660,19 +668,15 @@ function set_status(user_id, status){
     }
 }
 
-
 function check_presence(data){
-    let user_status = document.getElementById("titlebar-content-user-status");
-
-    if (current_chatroom.type == "user"){
-        for (let i=0;i<data.users_id.length;++i){
-            if (data.users_id[i] == current_chatroom.user.id){
-                user_status.innerText = "Online";
-                set_status(data.users_id[i], "Online");
-                return;
-            }
-        }
-        user_status.innerText = "Offline";
+    latest_presence = data;
+    const keys = Object.keys(user_status_elems);
+    for (let i=0;i<keys.length;i++){
+        let id = keys[i];
+        set_status(id, "Offline");
+    }
+    for (let i=0;i<data.users_id.length;i++){
+        set_status(data.users_id[i], "Online");
     }
 }
 
@@ -716,4 +720,3 @@ function load_page(){
 // Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
 // The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
 // If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase
-
