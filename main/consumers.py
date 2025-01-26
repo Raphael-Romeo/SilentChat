@@ -62,6 +62,7 @@ class PresenceConsumer(AsyncWebsocketConsumer):
     async def update_indicator(self, msg):
        for connection in self.connections:
            await connection.send(text_data=json.dumps({
+               "type": "presence_indicator",
                "msg": f"{self.user} {msg}",
                "online": f"{len(self.connections)}",
                "users_id" : [str(connection.user.id) for connection in self.connections]

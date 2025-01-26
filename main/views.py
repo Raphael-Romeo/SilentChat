@@ -78,12 +78,17 @@ def app_get_user_details(request):
         serialized_user_chats = []
         for chat in UserChats:
             if chat.user_A == user:
-                chatname = chat.user_B.username
+                user_name = chat.user_B.username
+                user_id = chat.user_B.id
             else:
-                chatname = chat.user_A.username
+                user_name = chat.user_A.username
+                user_id = chat.user_A.id
             serialized_user_chats.append({
                 "id": chat.chat_room.id,
-                "name": chatname,
+                "user": {
+                    "id": user_id,
+                    "username": user_name
+                },
                 "photo": "/static/images/placeholder_profile_picture.webp",
                 "type": "user"
             })
