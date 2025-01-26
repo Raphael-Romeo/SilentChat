@@ -55,8 +55,8 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         await self.update_indicator(msg="Connected")
     
     async def disconnect(self, code):
-        await self.update_indicator(msg="Disconnected")
         self.connections.remove(self)
+        await self.update_indicator(msg="Disconnected")
         return await super().disconnect(code)
     
     async def update_indicator(self, msg):

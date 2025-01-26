@@ -17,6 +17,7 @@ let compact_side_panel_mode = false;
 let app_fullscreen = false;
 let session_user = null;
 let sent_message_identifier = 0;
+let current_chatroom = null;
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -404,10 +405,11 @@ function load_message_data(d){
 
 function set_chatpage(chatroom, elem=null){
     current_chatroom_selector = elem;
+    current_chatroom = chatroom;
     document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
     document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
-    //document.getElementById("titlebar-content-user-status").innerText = "test";
+    //document.getElementById("titlebar-content-user-status").innerText = check_presence
     chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
     if(chatSocket_messages != null) {
         chatSocket_messages.close();
@@ -656,10 +658,20 @@ document.addEventListener("keydown", function(e){
     }
 })
 
+
+/* Presence handling */
 chatSocket_app.onmessage = function(e){
     let data = JSON.parse(e.data);
-    let current_user_presence = document.getElementById("titlebar-content-user-status");
-    if (data.type == "userPresence"){
-        current_user_presence.innerText = data.msg;
+    setTimeout(function(){check_presence(data)}, 100);
+}
+
+function check_presence(data){
+    let user_status = document.getElementById("titlebar-content-user-status");
+    for (let i=0;i<data.users.length;++i){
+        if (data.users[i] == current_chatroom.name){
+            user_status.innerText = "Online";
+            return;
+        }
     }
+    user_status.innerText = "Offline";
 }
