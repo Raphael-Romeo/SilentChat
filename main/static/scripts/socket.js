@@ -31,3 +31,10 @@ function send_message_socket(chatroom_id, message, sender){
     return message_id;
 }
 
+function send_new_chat_socket(chatroom_id){
+    chatSocket_app.send(JSON.stringify({
+        'type': 'new_chat',
+        'chatroom_id': chatroom_id
+    }));
+}
+

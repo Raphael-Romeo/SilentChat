@@ -598,6 +598,7 @@ function set_friends(d){
         friend_elem_chat_button.innerHTML = "<span class='material-symbols-outlined'>chat</span>"
         friend_elem_chat_button.onclick = function(){
             post_user_chatroom(friend.id);
+            
         }
         friend_elem.appendChild(friend_elem_chat_button);
         application_friends_list_container.appendChild(friend_elem);

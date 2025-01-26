@@ -51,7 +51,11 @@ function post_user_chatroom(user_B){
     }));
 
     xhr.onload = () => {
-        add_chatroom(JSON.parse(xhr.responseText), true);
+        let json_response = JSON.parse(xhr.responseText);
+        add_chatroom(json_response, true);
+        if(json_response.created){
+            send_new_chat_socket(json_response.id);
+        }
     }
 }
 

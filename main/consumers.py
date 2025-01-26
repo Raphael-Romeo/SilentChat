@@ -80,10 +80,9 @@ class PresenceConsumer(AsyncWebsocketConsumer):
            
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        user_id = self.user.id
         type = text_data_json['type']
         chatroom_id = text_data_json['chatroom_id']
-        user_id = self.user.id
-        
         if type == "typing":
             await self.channel_layer.group_send(
                 self.group_name,
@@ -91,6 +90,15 @@ class PresenceConsumer(AsyncWebsocketConsumer):
                     'type': 'typing',
                     'chatroom_id': chatroom_id,
                     'user_id': user_id
+                }
+            )
+        elif type == "new_chat":
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'new_chat',
+                    'creator': user_id,
+                    'chatroom_id': chatroom_id
                 }
             )
 
@@ -102,3 +110,13 @@ class PresenceConsumer(AsyncWebsocketConsumer):
             'chatroom_id': chatroom_id,
             'user_id': user_id
         }))
+
+    async def new_chat(self, event):
+        creator = event['creator_id']
+        chatroom_id = event['chatroom_id']
+        await self.send(text_data=json.dumps({
+            'type': 'new_chat',
+            'creator_id': creator,
+            'chatroom_id': chatroom_id
+        }))
+

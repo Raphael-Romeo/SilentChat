@@ -188,7 +188,8 @@ def app_post_user_chatroom(request):
                     "username": user_B.username
                 },
                 "photo": "/static/images/placeholder_profile_picture.webp",
-                "type": "user"
+                "type": "user",
+                "created": True
             }), content_type="application/json")
             else:
                 return HttpResponse(json.dumps({
@@ -198,7 +199,8 @@ def app_post_user_chatroom(request):
                     "username": user_B.username
                 },
                 "photo": "/static/images/placeholder_profile_picture.webp",
-                "type": "user"
+                "type": "user",
+                "created": False
             }), content_type="application/json")
         return HttpResponseBadRequest()
 
