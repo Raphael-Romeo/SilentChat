@@ -230,6 +230,7 @@ function send_message(){
     if (is_message_valid(message)){
         message = message.replaceAll("&nbsp;"," ");
         message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
+        message_raw_text = message_raw_text.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
         let this_sent_message_identifier = ++sent_message_identifier;
         post_message(current_chatroom_selector.data.id, message_raw_text, this_sent_message_identifier);
         const message_id = send_message_socket(current_chatroom_selector.data.id, message_raw_text, session_user.username);
@@ -414,7 +415,7 @@ function set_chatpage(chatroom, elem=null){
         let data = JSON.parse(e.data);
         const last_message_id = sessionStorage.getItem(data.message_id);
         if (last_message_id != data.message_id){
-            create_message_elem(data.message, data.sender, Date.now());
+            create_message_elem(data.message.replaceAll('\n','<br>'), data.sender, Date.now());
             application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
         }
     }
