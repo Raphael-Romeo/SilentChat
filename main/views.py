@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Q
+from datetime import datetime
 from .models import *
 import json
 
@@ -72,10 +73,12 @@ def app_get_user_details(request):
     if request.user.is_authenticated:
         user = request.user
         friends = User.objects.all() # FILTER FOR FRIENDS
+
         UserChats = UserChatRoom.objects.all().filter(Q(user_A=user) | Q(user_B=user))
         GroupChats = GroupChatRoom.objects.all().filter(users__in=[user])
         serialized_user_chats = []
         for chat in UserChats:
+            last_message_date = chat.chat_room.last_message_date
             if chat.user_A == user:
                 user_name = chat.user_B.username
                 user_id = chat.user_B.id
@@ -89,17 +92,24 @@ def app_get_user_details(request):
                     "username": user_name
                 },
                 "photo": "/static/images/placeholder_profile_picture.webp",
-                "type": "user"
+                "type": "user",
+                "last_message_date": last_message_date
             })
 
         for chat in GroupChats:
+            last_message_date = chat.chat_room.last_message_date
             serialized_user_chats.append({
                 "id": chat.chat_room.id,
                 "name": chat.name,
                 "photo": chat.chat_picture.url,
-                "type": "group"
+                "type": "group",
+                "last_message_date": last_message_date
         })
-
+            
+        serialized_user_chats.sort(key=lambda x: x['last_message_date'], reverse=True)
+        for chat in serialized_user_chats:
+            chat.pop('last_message_date', None)
+        
         serialized_friends = []
 
         for friend in friends:
@@ -157,6 +167,8 @@ def app_post_message(request):
             chatroom_id = data['chatroom_id']
             message = data['message']
             chatroom = ChatRoom.objects.get(id = chatroom_id)
+            chatroom.last_message_date = datetime.now()
+            chatroom.save()
             sender = User.objects.get(id = request.user.id)
             if user_in_chatroom(request.user, chatroom):
                 new_message = Message.objects.create(
@@ -175,6 +187,8 @@ def app_post_user_chatroom(request):
             data = json.loads(request.body)
             user_A = request.user
             user_B = User.objects.get(id=data['user_B'])
+            if user_A == user_B:
+                return HttpResponseBadRequest()
             chat_room_exists = UserChatRoom.objects.all().filter((Q(user_A=user_A) | Q(user_B=user_A)) & (Q(user_A=user_B) | Q(user_B=user_B)))
             if len(chat_room_exists) == 0:
                 chatroom = ChatRoom.objects.create(chat_room_type="user")

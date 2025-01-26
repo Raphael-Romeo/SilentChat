@@ -417,8 +417,19 @@ body, .application-wrapper{
 	-webkit-user-select:none;
 	-webkit-user-drag:none;
 	border:1px solid var(--primary-color-very-transparent);
+	transition:background 0.2s ease, transform 0.2s ease;
 }
 
+.friend-list-item:hover{
+	background:var(--button-hover-color);
+	transform:scale(1.01);
+	cursor:pointer;
+}
+
+.friend-list-item:active{
+	background:var(--button-selected-color);
+	transform:scale(1.02);
+}
 
 .friend-list-item-chat-button{
 	cursor:pointer;

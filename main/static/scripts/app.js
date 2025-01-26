@@ -228,20 +228,23 @@ function init_send_animation(){
 }
 
 function send_message(){
-    let message = application_message_input.innerHTML;
-    let message_raw_text = application_message_input.innerText;
-    if (is_message_valid(message)){
-        message = message.replaceAll("&nbsp;"," ");
-        message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        message_raw_text = message_raw_text.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
-        let this_sent_message_identifier = ++sent_message_identifier;
-        post_message(current_chatroom_selector.data.id, message_raw_text, this_sent_message_identifier);
-        const message_id = send_message_socket(current_chatroom_selector.data.id, message_raw_text, session_user.username);
-        sessionStorage.setItem(message_id, message_id);
-        create_message_elem(message, session_user.username, Date.now(), true, true, this_sent_message_identifier);
-        clear_message_input();
-        application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
-        init_send_animation();
+    if (current_chatroom != null){
+        let message = application_message_input.innerHTML;
+        let message_raw_text = application_message_input.innerText;
+        if (is_message_valid(message)){
+            message = message.replaceAll("&nbsp;"," ");
+            message = message.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
+            message_raw_text = message_raw_text.replaceAll(/^(?:[ \u00A0\n]+|<br>)+|(?:[ \u00A0\n]+|<br>)+$/g, ""); //Clean up message
+            let this_sent_message_identifier = ++sent_message_identifier;
+            post_message(current_chatroom_selector.data.id, message_raw_text, this_sent_message_identifier);
+            const message_id = send_message_socket(current_chatroom_selector.data.id, message_raw_text, session_user.username);
+            sessionStorage.setItem(message_id, message_id);
+            create_message_elem(message, session_user.username, Date.now(), true, true, this_sent_message_identifier);
+            clear_message_input();
+            application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight, behavior: 'smooth'});
+            init_send_animation();
+        }
+        set_chatroom_to_top(current_chatroom_selector);
     }
     return;
 }
@@ -407,6 +410,7 @@ function load_message_data(d){
 function set_chatpage(chatroom, elem=null){
     current_chatroom_selector = elem;
     current_chatroom = chatroom;
+    clear_message_input();
     if (chatroom.type == "user"){
 		document.getElementById("titlebar-content-user-name").innerText = chatroom.user.username;
         document.getElementById("titlebar-content-user-status").style.display = null;
@@ -417,12 +421,13 @@ function set_chatpage(chatroom, elem=null){
             this_status = "Offline";
         }
         document.getElementById("titlebar-content-user-status").innerText = this_status;
+        document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.user.username;
     }else{
 		document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
+        document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
         document.getElementById("titlebar-content-user-status").style.display = "None";
     }
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
-    document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
     chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
     if(chatSocket_messages != null) {
         chatSocket_messages.close();
@@ -522,6 +527,12 @@ function set_direct_messages_chat_rooms(d){
     }
 }
 
+function set_chatroom_to_top(chatroom_elem){
+    if (document.getElementById("direct-messages-container").firstChild != chatroom_elem){
+        document.getElementById("direct-messages-container").insertBefore(chatroom_elem, document.getElementById("direct-messages-container").firstChild);
+    }
+}
+
 function add_chatroom(chatroom, go_to=false){
     let userchat_element = null;
     if (chatrooms.length == 0){
@@ -586,6 +597,9 @@ function set_friends(d){
         let friend = new User(d.friends[i].id, d.friends[i].username, d.friends[i].profile_pic);
         session_friends.push(friend);
         let friend_elem = document.createElement("li");
+        friend_elem.onclick = function(){
+            post_user_chatroom(friend.id);
+        }
         friend_elem.classList.add("friend-list-item");
         friend_elem.innerHTML = "<img class='direct-message-picture' src='" + friend.profile_picture + "'><div class='direct-message-user-h-wrapper'><span class='direct-message-name'>" + friend.username + "</span></div>";
         if (user_status_elems[friend.id] == undefined) user_status_elems[friend.id] = [];
@@ -598,7 +612,6 @@ function set_friends(d){
         friend_elem_chat_button.innerHTML = "<span class='material-symbols-outlined'>chat</span>"
         friend_elem_chat_button.onclick = function(){
             post_user_chatroom(friend.id);
-            
         }
         friend_elem.appendChild(friend_elem_chat_button);
         application_friends_list_container.appendChild(friend_elem);
@@ -735,6 +748,10 @@ document.getElementById("friends-page-close-button").onclick = function(){
 
 document.getElementById("settings-page-logout-button").onclick = function(){
     window.location.href = "/logout";
+}
+
+document.getElementById("send-button").onclick = function(){
+    send_message();
 }
 
 document.addEventListener("keydown", function(e){

@@ -39,6 +39,7 @@ class ChatRoom(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     chat_room_type = models.CharField(max_length=10, choices=CHAT_ROOM_TYPES)
+    last_message_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Chat room {self.id}"
