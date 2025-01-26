@@ -711,8 +711,8 @@ document.getElementById("settings-button").onclick = function(){
 }
 
 document.getElementById("create-chat-room-page-button").onclick = function(){
-    if (current_page == 2) return;
-    set_page_view_transition(2);
+    if (current_page == 3) return;
+    set_page_view_transition(3);
 }
 
 document.getElementById("friends-page-button").onclick = function(){
