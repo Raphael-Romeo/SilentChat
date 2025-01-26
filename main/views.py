@@ -178,10 +178,11 @@ def app_post_group_chatroom(request):
             data = json.loads(request.body)
             name = data['name']
             users = data['users']
+            creator = User.objects.get(id=request.user.id)
             users.append(request.user.id)
             chatroom = ChatRoom.objects.create(chat_room_type="group")
             chatroom.save()
-            group_chatroom = GroupChatRoom.objects.create(chat_room=chatroom, name=name)
+            group_chatroom = GroupChatRoom.objects.create(chat_room=chatroom, name=name, creator=creator)
             group_chatroom.save()
             for user_id in users:
                 user = User.objects.get(id=user_id)
