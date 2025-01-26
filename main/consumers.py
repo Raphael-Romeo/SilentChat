@@ -49,12 +49,22 @@ class PresenceConsumer(AsyncWebsocketConsumer):
     connections = []
     
     async def connect(self):
+        self.group_name = "app"
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
         await self.accept()
+
         self.user = self.scope['user']
         self.connections.append(self)
         await self.update_indicator(msg="Connected")
     
     async def disconnect(self, code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
         self.connections.remove(self)
         await self.update_indicator(msg="Disconnected")
         return await super().disconnect(code)
@@ -67,3 +77,28 @@ class PresenceConsumer(AsyncWebsocketConsumer):
                "online": f"{len(self.connections)}",
                "users_id" : [str(connection.user.id) for connection in self.connections]
             }))
+           
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        type = text_data_json['type']
+        chatroom_id = text_data_json['chatroom_id']
+        user_id = self.user.id
+        
+        if type == "typing":
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'typing',
+                    'chatroom_id': chatroom_id,
+                    'user_id': user_id
+                }
+            )
+
+    async def typing(self, event):
+        user_id = event['user_id']
+        chatroom_id = event['chatroom_id']
+        await self.send(text_data=json.dumps({
+            'type': 'typing',
+            'chatroom_id': chatroom_id,
+            'user_id': user_id
+        }))

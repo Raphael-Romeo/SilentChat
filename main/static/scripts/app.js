@@ -18,6 +18,7 @@ let app_fullscreen = false;
 let session_user = null;
 let sent_message_identifier = 0;
 let current_chatroom = null;
+let isTyping = false;
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -715,3 +716,4 @@ function load_page(){
 // Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
 // The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
 // If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase
+
