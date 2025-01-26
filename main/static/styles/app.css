@@ -308,6 +308,7 @@ body, .application-wrapper{
 	user-select:none;
 	transition:filter 0.2s ease, height 0.2s ease, width 0.2s ease;
 	object-fit:cover;
+	-webkit-user-drag:none;
 }
 
 .direct-message-name{
@@ -387,8 +388,55 @@ body, .application-wrapper{
 	cursor:pointer;
 }
 
+.friends-list-container{
+	height:100%;
+	width:calc(100% - 20px);
+	display:flex;
+	flex-direction:column;
+	gap:10px;
+	padding-bottom:10px;
+	padding-left:10px;
+	padding-right:10px;
+}
+
 .page-close-button:hover{
 	background: var(--button-hover-color);
+}
+
+.friend-list-item{
+	border-radius:10px;
+	display:flex;
+	gap:10px;
+	height: 64px;
+    padding-left: 15px;
+    padding-right: 15px;
+	color:var(--text-color);
+	align-items: center;
+	font-family:arial;
+	user-select:none;
+	-webkit-user-select:none;
+	-webkit-user-drag:none;
+}
+
+
+.friend-list-item-chat-button{
+	cursor:pointer;
+	min-width:45px;
+	width:45px;
+	height:45px;
+	border-radius:50%;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	transition:background 0.2s ease;
+}
+
+.friend-list-item-chat-button:hover{
+	background:var(--button-hover-color);
+}
+
+.friend-list-item > .direct-message-user-h-wrapper{
+	width: 100%;
 }
 
 .page-close-button:active{
@@ -712,9 +760,6 @@ body, .application-wrapper{
     /*max-width: 33vw;*/
 	line-height:20px;
     word-wrap: break-word;
-}
-
-.chat-page-message.self{
 }
 
 .message-header{

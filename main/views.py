@@ -71,10 +71,9 @@ def logout_user(request):
 def app_get_user_details(request):
     if request.user.is_authenticated:
         user = request.user
+        friends = User.objects.all() # FILTER FOR FRIENDS
         UserChats = UserChatRoom.objects.all().filter(Q(user_A=user) | Q(user_B=user))
         GroupChats = GroupChatRoom.objects.all().filter(users__in=[user])
-        print(UserChats)
-        print(GroupChats)
         serialized_user_chats = []
         for chat in UserChats:
             if chat.user_A == user:
@@ -100,7 +99,17 @@ def app_get_user_details(request):
                 "photo": chat.chat_picture.url,
                 "type": "group"
         })
-        data = {"username": user.username, "profile_pic": "/static/images/placeholder_profile_picture.webp", "user_chats": serialized_user_chats}
+
+        serialized_friends = []
+
+        for friend in friends:
+            if friend != request.user:
+                serialized_friends.append({
+                    "id" : friend.id,
+                    "username" : friend.username,
+                    "profile_pic" : "/static/images/placeholder_profile_picture.webp",
+                })
+        data = {"username": user.username, "profile_pic": "/static/images/placeholder_profile_picture.webp", "user_chats": serialized_user_chats, "friends": serialized_friends}
 
         return HttpResponse(json.dumps(data), content_type="application/json")
     else:
@@ -159,6 +168,7 @@ def app_post_message(request):
                 return HttpResponse(json.dumps(data), content_type="application/json")
     return HttpResponseForbidden()
 
+
 def app_post_user_chatroom(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -172,17 +182,17 @@ def app_post_user_chatroom(request):
             return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
     return HttpResponseForbidden()
 
+
 def app_post_group_chatroom(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             data = json.loads(request.body)
             name = data['name']
             users = data['users']
-            creator = User.objects.get(id=request.user.id)
             users.append(request.user.id)
             chatroom = ChatRoom.objects.create(chat_room_type="group")
             chatroom.save()
-            group_chatroom = GroupChatRoom.objects.create(chat_room=chatroom, name=name, creator=creator)
+            group_chatroom = GroupChatRoom.objects.create(chat_room=chatroom, name=name)
             group_chatroom.save()
             for user_id in users:
                 user = User.objects.get(id=user_id)
@@ -191,6 +201,7 @@ def app_post_group_chatroom(request):
             return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
     return HttpResponseForbidden()
 
+
 def app_post_delete_self(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -198,6 +209,7 @@ def app_post_delete_self(request):
             user.delete()
             return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
     return HttpResponseForbidden()
+
 
 def app_post_delete_chatroom(request):
     if request.user.is_authenticated:
@@ -216,6 +228,7 @@ def app_post_delete_chatroom(request):
                     chatroom.delete()
                     return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
     return HttpResponseForbidden()
+
 
 def app_post_delete_message(request):
     if request.user.is_authenticated:

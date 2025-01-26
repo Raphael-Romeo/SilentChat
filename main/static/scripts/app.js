@@ -18,6 +18,7 @@ let session_user = null;
 let sent_message_identifier = 0;
 let current_chatroom = null;
 let latest_presence = null;
+let session_friends = [];
 
 max_side_panel_width = application.clientWidth/3;
 if (max_side_panel_width <= minimum_side_panel_width){
@@ -406,7 +407,6 @@ function load_message_data(d){
 function set_chatpage(chatroom, elem=null){
     current_chatroom_selector = elem;
     current_chatroom = chatroom;
-    console.log(chatroom);
     if (chatroom.type == "user"){
 		document.getElementById("titlebar-content-user-name").innerText = chatroom.user.username;
         document.getElementById("titlebar-content-user-status").style.display = null;
@@ -512,13 +512,43 @@ function set_direct_messages_chat_rooms(d){
         let userchat_element = document.createElement("li");
         userchat_element.classList.add("direct-message-button");
         userchat_element.classList.add("create-chatroom");
-        userchat_element.innerHTML = "<span class='material-symbols-outlined'>add</span> <span class='direct-message-name'>" + "Create Chatroom" + "</span>";
+        userchat_element.innerHTML = "<span class='material-symbols-outlined'>add</span> <span class='direct-message-name'>Create Chatroom</span>";
         userchat_element.onclick = function(){
             if (current_page == 2) return;
             set_page_view_transition(2);
         }
         document.getElementById("direct-messages-container").appendChild(userchat_element);
         no_chat_room_selected();
+    }
+}
+
+const application_friends_list_container = document.getElementById("friends-list-container");
+
+function set_friends(d){
+    for (let i=0;i<d.friends.length;i++) {
+        application_friends_list_container.innerHTML = "";
+        let friend = new User(d.friends[i].id, d.friends[i].username, d.friends[i].profile_pic);
+        session_friends.push(friend);
+        let friend_elem = document.createElement("li");
+        friend_elem.classList.add("friend-list-item");
+        friend_elem.innerHTML = "<img class='direct-message-picture' src='" + friend.profile_picture + "'><div class='direct-message-user-h-wrapper'><span class='direct-message-name'>" + friend.username + "</span></div>";
+        if (user_status_elems[friend.id] == undefined) user_status_elems[friend.id] = [];
+        let status_elem = document.createElement("span");
+        status_elem.classList.add('direct-message-user-status');
+        user_status_elems[friend.id].push(status_elem);
+        friend_elem.getElementsByClassName("direct-message-user-h-wrapper")[0].appendChild(status_elem);
+        let friend_elem_chat_button = document.createElement("div");
+        friend_elem_chat_button.classList.add("friend-list-item-chat-button");
+        friend_elem_chat_button.innerHTML = "<span class='material-symbols-outlined'>chat</span>"
+        friend_elem_chat_button.onclick = function(){
+            console.log("Let's chat with", friend.username, "!");
+            // CREATE CHAT ROOM WITH FRIEND, OPEN IT, SET PAGE TO CHAT PAGE, AND LET'S GET CHATTIN'
+        }
+        friend_elem.appendChild(friend_elem_chat_button);
+        application_friends_list_container.appendChild(friend_elem);
+    }
+    if (d.friends.length == 0){
+        application_friends_list_container.innerHTML = "<h3 style='text-align: center' class='settings-page-header'>You have no friends yet ! <br><br>Consider adding a friend !</h3>";
     }
 }
 
@@ -529,6 +559,7 @@ function load_user_data(d){
     document.getElementById("user-details-card-profile-picture").src = d.profile_pic;
     document.getElementById("settings-page-user-profile").src = d.profile_pic;
     set_direct_messages_chat_rooms(d);
+    set_friends(d);
     chatSocket_app = new_websocket_app();
 }
 
