@@ -407,17 +407,18 @@ function set_chatpage(chatroom, elem=null){
     current_chatroom_selector = elem;
     current_chatroom = chatroom;
     console.log(chatroom);
-    document.getElementById("titlebar-content-user-name").innerText = chatroom.user.username;
-    if (chatroom.type == user){
+    if (chatroom.type == "user"){
+		document.getElementById("titlebar-content-user-name").innerText = chatroom.user.username;
         document.getElementById("titlebar-content-user-status").style.display = null;
         let this_status = null;
-        if (latest_presence.includes(chatroom.user.id)){
+        if (latest_presence != null && latest_presence.users_id.includes(chatroom.user.id.toString())){
             this_status = "Online";
         }else{
             this_status = "Offline";
         }
         document.getElementById("titlebar-content-user-status").innerText = this_status;
     }else{
+		document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
         document.getElementById("titlebar-content-user-status").style.display = "None";
     }
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
