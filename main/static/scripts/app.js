@@ -522,11 +522,67 @@ function set_direct_messages_chat_rooms(d){
     }
 }
 
+function add_chatroom(chatroom, go_to=false){
+    let userchat_element = null;
+    if (chatrooms.length == 0){
+        document.getElementById("direct-messages-container").innerHTML = "";
+    }else{
+        for (let i=0;i<document.getElementById("direct-messages-container").children.length;i++){
+            if (document.getElementById("direct-messages-container").children[i].data.id == chatroom.id){
+                userchat_element = document.getElementById("direct-messages-container").children[i];
+                if (go_to){
+                    return userchat_element.click();
+                }
+            }
+        }
+    }
+    chatrooms.push(chatroom);
+    userchat_element = document.createElement("li");
+    userchat_element.classList.add("direct-message-button");
+    userchat_element.data = chatroom;
+    if (chatroom.type == "group"){
+        userchat_element.innerHTML = "<img class='direct-message-picture' src='" + chatroom.photo + "'><span class='direct-message-name'>" + chatroom.name + "</span>";
+    }else if (chatroom.type == "user"){
+        userchat_element.innerHTML = "<img class='direct-message-picture' src='" + chatroom.photo + "'><div class='direct-message-user-h-wrapper'><span class='direct-message-name'>" + chatroom.user.username + "</span></div>";
+        if (user_status_elems[chatroom.user.id] == undefined) user_status_elems[chatroom.user.id] = [];
+        let status_elem = document.createElement("span");
+        status_elem.classList.add('direct-message-user-status');
+        user_status_elems[chatroom.user.id].push(status_elem);
+        userchat_element.getElementsByClassName("direct-message-user-h-wrapper")[0].appendChild(status_elem);
+        let this_status = null;
+        if (latest_presence != null && latest_presence.users_id.includes(chatroom.user.id.toString())){
+            this_status = "Online";
+        }else{
+            this_status = "Offline";
+        }
+        status_elem.innerText = this_status;
+    }
+    if (document.getElementById("direct-messages-container").children.length > 0){
+        document.getElementById("direct-messages-container").insertBefore(userchat_element, document.getElementById("direct-messages-container").firstChild);
+    }else{
+        document.getElementById("direct-messages-container").appendChild(userchat_element);
+    }
+
+    userchat_element.onclick = function(){
+        if(this != current_chatroom_selector) {
+            set_page_view_transition(1);
+            set_chatpage_transition(this.data, this);
+            remove_class("selected");
+            this.classList.add("selected");
+        }else if(current_page != 1){
+            set_page_view_transition(1);
+        }
+    }
+    if (go_to){
+        userchat_element.click();
+    }
+}
+
 const application_friends_list_container = document.getElementById("friends-list-container");
 
 function set_friends(d){
+    application_friends_list_container.innerHTML = "";
     for (let i=0;i<d.friends.length;i++) {
-        application_friends_list_container.innerHTML = "";
         let friend = new User(d.friends[i].id, d.friends[i].username, d.friends[i].profile_pic);
         session_friends.push(friend);
         let friend_elem = document.createElement("li");
@@ -541,8 +597,7 @@ function set_friends(d){
         friend_elem_chat_button.classList.add("friend-list-item-chat-button");
         friend_elem_chat_button.innerHTML = "<span class='material-symbols-outlined'>chat</span>"
         friend_elem_chat_button.onclick = function(){
-            console.log("Let's chat with", friend.username, "!");
-            // CREATE CHAT ROOM WITH FRIEND, OPEN IT, SET PAGE TO CHAT PAGE, AND LET'S GET CHATTIN'
+            post_user_chatroom(friend.id);
         }
         friend_elem.appendChild(friend_elem_chat_button);
         application_friends_list_container.appendChild(friend_elem);
@@ -550,6 +605,10 @@ function set_friends(d){
     if (d.friends.length == 0){
         application_friends_list_container.innerHTML = "<h3 style='text-align: center' class='settings-page-header'>You have no friends yet ! <br><br>Consider adding a friend !</h3>";
     }
+}
+
+function add_friend(d){
+
 }
 
 function load_user_data(d){

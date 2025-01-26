@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -148,7 +148,7 @@ def app_get_messages(request, chatroom_id:int):
                 })
             return HttpResponse(json.dumps(data), content_type="application/json")
     return HttpResponseForbidden()
-    
+
 
 def app_post_message(request):
     if request.user.is_authenticated:
@@ -173,14 +173,34 @@ def app_post_user_chatroom(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             data = json.loads(request.body)
-            user_A = User.objects.get(id=data['user_A'])
+            user_A = request.user
             user_B = User.objects.get(id=data['user_B'])
-            chatroom = ChatRoom.objects.create(chat_room_type="user")
-            chatroom.save()
-            user_chatroom = UserChatRoom.objects.create(chat_room=chatroom, user_A=user_A, user_B=user_B)
-            user_chatroom.save()
-            return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
-    return HttpResponseForbidden()
+            chat_room_exists = UserChatRoom.objects.all().filter((Q(user_A=user_A) | Q(user_B=user_A)) & (Q(user_A=user_B) | Q(user_B=user_B)))
+            if len(chat_room_exists) == 0:
+                chatroom = ChatRoom.objects.create(chat_room_type="user")
+                chatroom.save()
+                user_chatroom = UserChatRoom.objects.create(chat_room=chatroom, user_A=user_A, user_B=user_B)
+                user_chatroom.save()
+                return HttpResponse(json.dumps({
+                "id": chatroom.id,
+                "user": {
+                    "id": user_B.id,
+                    "username": user_B.username
+                },
+                "photo": "/static/images/placeholder_profile_picture.webp",
+                "type": "user"
+            }), content_type="application/json")
+            else:
+                return HttpResponse(json.dumps({
+                "id": chat_room_exists[0].id,
+                "user": {
+                    "id": user_B.id,
+                    "username": user_B.username
+                },
+                "photo": "/static/images/placeholder_profile_picture.webp",
+                "type": "user"
+            }), content_type="application/json")
+        return HttpResponseBadRequest()
 
 
 def app_post_group_chatroom(request):
