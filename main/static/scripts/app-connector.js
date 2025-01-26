@@ -1,6 +1,3 @@
-/* WebSocket */
-
-
 function get_user_details(){
     const xhr = new XMLHttpRequest();
     xhr.open("GET", "/app/get/user_details", true);

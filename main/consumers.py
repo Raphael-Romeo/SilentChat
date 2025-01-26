@@ -5,7 +5,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.socket_name = self.scope['url_route']['kwargs']['chatroom_id']
-        print(self.socket_name)
         await self.channel_layer.group_add(
             self.socket_name,
             self.channel_name
@@ -14,8 +13,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, code):
         return await super().disconnect(code)
     
-
-
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         chatroom_id = text_data_json['chatroom_id']
@@ -54,23 +51,18 @@ class PresenceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.user = self.scope['user']
-        self.socket_name = self.scope['url_route']['kwargs']
         self.connections.append(self)
-        self.update_indicator(msg="Connected")
+        await self.update_indicator(msg="Connected")
     
     async def disconnect(self, code):
-        self.update_indicator(msg="Disconnected")
+        await self.update_indicator(msg="Disconnected")
         self.connections.remove(self)
         return await super().disconnect(code)
     
     async def update_indicator(self, msg):
-        print("test")
-        for connection in self.connections:
-            connection.send(text_data=json.dumps({
-                'message': f"{self.user.username} {msg}",
-                'online': f"{len(self.connections)}",
-                'users': [f"{user.scope['user'].username}" for user in self.connections],
+       for connection in self.connections:
+           await connection.send(text_data=json.dumps({
+               "msg": f"{self.user} {msg}",
+               "online": f"{len(self.connections)}",
+               "users": [f"{user.scope['user']}" for user in self.connections],
             }))
-
-    async def receive(self, text_data):
-        pass

@@ -8,6 +8,7 @@ const application_friends_page = document.getElementById("friends-page");
 const application_pages = [application_settings_page, application_chat_page_wrapper, application_create_chat_room_page, application_friends_page];
 
 let chatSocket_messages = null;
+let chatSocket_app = new_websocket_app()
 let mouse_down_side_panel_drag_handle_initial_pos = null;
 let mouse_down_side_panel_drag_handle_initial_width = null;
 let max_side_panel_width = null;
@@ -406,6 +407,7 @@ function set_chatpage(chatroom, elem=null){
     document.getElementById("titlebar-content-user-name").innerText = chatroom.name;
     document.getElementById("titlebar-content-user-profile-picture-elem").src = chatroom.photo;
     document.getElementById("message-input-placeholdertext").innerText = "Send message to " + chatroom.name;
+    //document.getElementById("titlebar-content-user-status").innerText = "test";
     chat_page_message_container.innerHTML = ""; // CLEAR CHATROOM MESSAGES
     if(chatSocket_messages != null) {
         chatSocket_messages.close();
@@ -653,3 +655,11 @@ document.addEventListener("keydown", function(e){
         }
     }
 })
+
+chatSocket_app.onmessage = function(e){
+    let data = JSON.parse(e.data);
+    let current_user_presence = document.getElementById("titlebar-content-user-status");
+    if (data.type == "userPresence"){
+        current_user_presence.innerText = data.msg;
+    }
+}
