@@ -448,8 +448,6 @@ function set_chatpage_transition(n, elem=null){
     }
 }
 
-/* page initialisation */
-
 let chat_room_selected = false;
 
 function no_chat_room_selected(){
@@ -462,6 +460,7 @@ function no_chat_room_selected(){
 const chatrooms = [
 ]
 let current_chatroom_selector = null;
+const user_status_elems = {}
 
 function load_user_data(d){
     session_user = new User(d.id, d.username, d.profile_pic);
@@ -475,7 +474,16 @@ function load_user_data(d){
             let userchat_element = document.createElement("li");
             userchat_element.classList.add("direct-message-button");
             userchat_element.data = d.user_chats[i];
-            userchat_element.innerHTML = "<img class='direct-message-picture' src='" + d.user_chats[i].photo + "'><span class='direct-message-name'>" + d.user_chats[i].name + "</span>";
+            if (d.user_chats[i].type == "group"){
+                userchat_element.innerHTML = "<img class='direct-message-picture' src='" + d.user_chats[i].photo + "'><span class='direct-message-name'>" + d.user_chats[i].name + "</span>";
+            }else if (d.user_chats[i].type == "user"){
+                userchat_element.innerHTML = "<img class='direct-message-picture' src='" + d.user_chats[i].photo + "'><div class='direct-message-user-h-wrapper'><span class='direct-message-name'>" + d.user_chats[i].user.username + "</span></div>";
+                if (user_status_elems[d.user_chats[i].user.id] == undefined) user_status_elems[d.user_chats[i].user.id] = [];
+                let status_elem = document.createElement("span");
+                status_elem.classList.add('direct-message-user-status');
+                user_status_elems[d.user_chats[i].user.id].push(status_elem);
+                userchat_element.getElementsByClassName("direct-message-user-h-wrapper")[0].appendChild(status_elem);
+            }
             document.getElementById("direct-messages-container").appendChild(userchat_element);
             userchat_element.onclick = function(){
                 if(this != current_chatroom_selector) {
@@ -517,25 +525,6 @@ function wait_for_fonts_to_load(){
         alert("Whoops ! It looks like some files didn't load correctly. Try restarting your browser or clearing your cache and try again.");
     });
 }
-
-get_user_details();
-
-set_side_panel_fullscreen(true);
-function load_page(){
-    set_side_panel_fullscreen(false);
-    set_page_view(1, false);
-    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
-    setTimeout(function(){toggle_bottom_panel(true);if(chatrooms.length > 0) document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
-    setTimeout(function(){application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight})}, 500);
-}
-
-/* Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
-/* The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
-/* If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase.
-
-/
-
-/* page initialisation */
 
 /* App navigation */
 const application_page_transition_element = document.getElementById("page-transition")
@@ -638,17 +627,6 @@ document.getElementById("settings-page-logout-button").onclick = function(){
     window.location.href = "/logout";
 }
 
-const settings_page_theme_button = document.getElementById("settings-page-theme-button");
-settings_page_theme_button.onclick = function(){
-    if (application.classList.contains("lightmode")){
-        application.classList.remove("lightmode");
-        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">light_mode</span> Light Theme'
-    }else{
-        application.classList.add("lightmode");
-        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">dark_mode</span> Dark Theme'
-    }
-}
-
 document.addEventListener("keydown", function(e){
     if (e.key == "Escape"){
         if (!document.activeElement.isContentEditable){
@@ -668,15 +646,72 @@ chatSocket_app.onmessage = function(e){
     }
 }
 
+function set_status(user_id, status){
+    if (current_chatroom.type == "user"){
+        if (user_id == current_chatroom.user.id){
+            document.getElementById("titlebar-content-user-status").innerText = status;
+        }
+    }
+    if (user_status_elems[user_id] != undefined){
+        for (let i=0;i<user_status_elems[user_id].length;i++){
+            user_status_elems[user_id][i].innerText = status;
+        }
+    }
+}
+
+
 function check_presence(data){
     let user_status = document.getElementById("titlebar-content-user-status");
+
     if (current_chatroom.type == "user"){
         for (let i=0;i<data.users_id.length;++i){
             if (data.users_id[i] == current_chatroom.user.id){
                 user_status.innerText = "Online";
+                set_status(data.users_id[i], "Online");
                 return;
             }
         }
         user_status.innerText = "Offline";
     }
 }
+
+
+function set_theme(theme){
+    if (theme == null){
+        theme = "Dark"; // Defaults to Dark theme
+    }
+    if (theme == "Dark"){
+        application.classList.remove("lightmode");
+        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">light_mode</span> Light Theme';
+        localStorage.setItem("silent-chat-application-theme", "Dark");
+    }else if(theme == "Light"){
+        application.classList.add("lightmode");
+        settings_page_theme_button.innerHTML = '<span class="material-symbols-outlined">dark_mode</span> Dark Theme';
+        localStorage.setItem("silent-chat-application-theme", "Light");
+    }
+}
+
+
+const settings_page_theme_button = document.getElementById("settings-page-theme-button");
+settings_page_theme_button.onclick = function(){
+    if (application.classList.contains("lightmode")){
+        set_theme("Dark");
+    }else{
+        set_theme("Light");
+    }
+}
+
+set_theme(localStorage.getItem("silent-chat-application-theme"));
+get_user_details();
+set_side_panel_fullscreen(true);
+function load_page(){
+    set_side_panel_fullscreen(false);
+    set_page_view(1, false);
+    setTimeout(function(){set_side_panel_width(360, true);application.classList.remove("loading");document.getElementById("side-panel").classList.remove("content-hidden")}, 200);
+    setTimeout(function(){toggle_bottom_panel(true);if(chatrooms.length > 0) document.getElementById("chat-page-titlebar-content").classList.remove("hidden")}, 300);
+    setTimeout(function(){application_chat_page_wrapper.scrollTo({top: application_chat_page_wrapper.scrollHeight})}, 500);
+}
+
+// Need to eventually add a rotating loading animation at the center of the screen to let the user know that something is happening before initiating load_page function.
+// The idea behind the load page is to wait that all static files are correctly loaded on the client, but also, to ensure that the socket has established correct handshake.
+// If for some reason something goes wrong during the socket initialisation we need to display an error prompt to the user during the loading phase

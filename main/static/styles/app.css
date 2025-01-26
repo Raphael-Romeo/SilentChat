@@ -266,6 +266,16 @@ body, .application-wrapper{
 	cursor:pointer;
 }
 
+.direct-message-user-h-wrapper{
+	display:flex;flex-direction:column;gap:2px;
+}
+
+.direct-message-user-status{
+	color:var(--text-color-light);
+	font-size:12px;
+	font-style:italic;
+}
+
 .direct-message-button.create-chatroom{
 	font-weight:600;
 }
