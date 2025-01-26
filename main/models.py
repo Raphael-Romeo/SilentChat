@@ -55,6 +55,7 @@ admin.site.register(UserChatRoom)
 
 class GroupChatRoom(models.Model): 
     chat_room = models.OneToOneField(ChatRoom, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator')
     name = models.CharField(max_length=100)
     chat_picture = models.ImageField(upload_to='chat_picture', blank=True, default='chat_picture/default.png')
     users = models.ManyToManyField(User)

@@ -56,3 +56,49 @@ function post_group_chatroom(name, users){
         location.reload();
     }
 }
+
+function post_delete_self(){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/delete_self", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+    xhr.send(null);
+
+    xhr.onload = () => {
+        location.reload();
+    }
+}
+
+function post_delete_message(message_id){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/delete_message", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+    xhr.send(JSON.stringify({
+        message_id: message_id
+    }));
+
+    xhr.onload = () => {
+        location.reload();
+    }
+}
+
+function post_delete_chatroom(chatroom_id){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/delete_chatroom", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+    xhr.send(JSON.stringify({
+        chatroom_id: chatroom_id
+    }));
+
+    xhr.onload = () => {
+        location.reload();
+    }
+}

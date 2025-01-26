@@ -22,5 +22,8 @@ urlpatterns = [
     # POST
     path('app/post/message', app_post_message),
     path('app/post/group_chatroom', app_post_group_chatroom),
+    path('app/post/delete_self', app_post_delete_self),
+    path('app/post/delete_chatroom', app_post_delete_chatroom),
+    path('app/post/delete_message', app_post_delete_message),
     # ...
 ]

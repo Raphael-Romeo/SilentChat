@@ -176,3 +176,33 @@ def app_post_group_chatroom(request):
             group_chatroom.save()
             return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
     return HttpResponseForbidden()
+
+def app_post_delete_self(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            user = User.objects.get(id=request.user.id)
+            user.delete()
+            return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+    return HttpResponseForbidden()
+
+def app_post_delete_chatroom(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            chatroom_id = data['chatroom_id']
+            chatroom = ChatRoom.objects.get(id=chatroom_id)
+            if chatroom.creator == request.user:
+                chatroom.delete()
+                return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+    return HttpResponseForbidden()
+
+def app_post_delete_message(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            message_id = data['message_id']
+            message = Message.objects.get(id=message_id)
+            if message.sender == request.user:
+                message.delete()
+                return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+    return HttpResponseForbidden()
