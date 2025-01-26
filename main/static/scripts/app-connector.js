@@ -38,3 +38,20 @@ function post_message(chatroom_id, message, server_response_id){
         document.getElementById("message-" + server_response_id).classList.remove("loading");
     }
 }
+
+function post_group_chatroom(name, users){
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/app/post/group_chatroom", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+    xhr.send(JSON.stringify({
+        name: name,
+        users: users
+    }));
+
+    xhr.onload = () => {
+        location.reload();
+    }
+}

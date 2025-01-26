@@ -36,7 +36,7 @@ class ChatRoom(models.Model):
     )
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    chat_room_type = models.CharField(max_length=10, choices=CHAT_ROOM_TYPES, unique=True)
+    chat_room_type = models.CharField(max_length=10, choices=CHAT_ROOM_TYPES)
 
     def __str__(self):
         return f"Chat room {self.id}"
@@ -56,7 +56,7 @@ admin.site.register(UserChatRoom)
 class GroupChatRoom(models.Model): 
     chat_room = models.OneToOneField(ChatRoom, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    chat_picture = models.ImageField(upload_to='chat_picture', blank=True)
+    chat_picture = models.ImageField(upload_to='chat_picture', blank=True, default='chat_picture/default.png')
     users = models.ManyToManyField(User)
 
     def __str__(self):

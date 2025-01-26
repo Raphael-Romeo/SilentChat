@@ -158,3 +158,21 @@ def app_post_message(request):
                 new_message.save()
                 return HttpResponse(json.dumps(data), content_type="application/json")
     return HttpResponseForbidden()
+
+def app_post_group_chatroom(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            name = data['name']
+            users = data['users']
+            users.append(request.user.id)
+            chatroom = ChatRoom.objects.create(chat_room_type="group")
+            chatroom.save()
+            group_chatroom = GroupChatRoom.objects.create(chat_room=chatroom, name=name)
+            group_chatroom.save()
+            for user_id in users:
+                user = User.objects.get(id=user_id)
+                group_chatroom.users.add(user)
+            group_chatroom.save()
+            return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
+    return HttpResponseForbidden()
