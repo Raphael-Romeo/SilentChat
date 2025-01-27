@@ -233,6 +233,34 @@ body, .application-wrapper{
     user-select: none;
     padding: 15px;
     transition: color 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.side-panel-direct-messages-add-chatroom-button{
+	transition:background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+	border-radius:50%;
+	height:27px;
+	width:27px;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	cursor:pointer;
+}
+
+.side-panel-direct-messages-add-chatroom-button:hover{
+	background:var(--button-hover-color);
+	transform:scale(1.1);
+}
+
+.side-panel-direct-messages-add-chatroom-button > span{
+	color:var(--text-color-light);
+	transition:color 0.2s ease;
+}
+
+.side-panel-direct-messages-add-chatroom-button:hover > span{
+	color:var(--text-color);
 }
 
 .side-panel-direct-messages-container{

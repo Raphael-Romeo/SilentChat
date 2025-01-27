@@ -1,27 +1,32 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static '/styles/main.css' %}">
-    <title>Home page</title>
-</head>
-<body>
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}    
-    {% if user.is_authenticated %}
-        <p>Welcome, {{ user.username }}</p>
-        {# <img src="{{ user.profile.profile_pic.url }}" alt="Profile image" width="200px" height="200px"> #} 
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>SilentChat</title>
+        <link rel="stylesheet" href="/static/styles/style.css"/>
+    </head>
+    <body>
+        <header>
+            <div id="top_menu">
+                <a href="/" id="title_link"><h2 id="main_title">SilentChat</h2></a>
+                <nav>
+                    <div style="display:flex;gap:10px;">
+                        <a href="/login"><h2 class="menu">Login</h2></a>
+                        <a href="/signup"><h2 class="menu">Signup</h2></a>
+                    </div>
+                </nav>
+            </div>
+           
+        </header>
         
-        <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
-        <p>Welcome, guest</p>
-        <a href="{% url 'signup' %}">Register</a>
-        <a href="{% url 'login' %}">Login</a>
-    {% endif %}
-    <p>Welcome to the home page</p>
-    
-</body>
-</html>
+        <div id="presentation">
+            <h1>SilentChat :&nbsp;A chatting app</h1>
+        </div>
+        <div id="description">
+            <p>SilentChat is a secure, distraction-free messaging app built for seamless communication. With a minimalist design,
+                end-to-end encryption, and lightning-fast performance, it keeps your conversations private and focused.
+                Speak softly, connect deeply, and enjoy a secure, clutter-free chatting experience.</p>
+            <img src="/static/images/presentation.png" alt="image de l'application">
+        </div>
+    </body>
+</html> 
