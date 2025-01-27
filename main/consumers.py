@@ -12,13 +12,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, code):
         return await super().disconnect(code)
-    
+
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         chatroom_id = text_data_json['chatroom_id']
         message = text_data_json['message']
         sender = text_data_json['sender']
         message_id = text_data_json['message_id']
+
         await self.channel_layer.group_send(
             self.socket_name,
             {
@@ -29,7 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender': sender
             }
         )
-    
+
     async def sendMessage(self, event):
         message_id = event['message_id']
         message = event['message']
@@ -44,10 +45,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': sender
         }))
 
+
 class PresenceConsumer(AsyncWebsocketConsumer):
-    
+
     connections = []
-    
+
     async def connect(self):
         self.group_name = "app"
         await self.channel_layer.group_add(
@@ -57,33 +59,53 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         self.user = self.scope['user']
+
         self.connections.append(self)
+
         await self.update_indicator(msg="Connected")
-    
+
     async def disconnect(self, code):
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
         )
-        self.connections.remove(self)
+
+        if self in self.connections:
+            self.connections.remove(self)
+
         await self.update_indicator(msg="Disconnected")
+
         return await super().disconnect(code)
-    
+
     async def update_indicator(self, msg):
-       for connection in self.connections:
-           await connection.send(text_data=json.dumps({
-               "type": "presence_indicator",
-               "msg": f"{self.user} {msg}",
-               "online": f"{len(self.connections)}",
-               "users_id" : [str(connection.user.id) for connection in self.connections]
-            }))
-           
+        """
+        Sends a presence update to every connection in `self.connections`.
+        If a connection is already closed, remove it from the list.
+        """
+        disconnected = []
+
+        for connection in list(self.connections):
+            try:
+                await connection.send(text_data=json.dumps({
+                    "type": "presence_indicator",
+                    "msg": f"{self.user} {msg}",
+                    "online": str(len(self.connections)),
+                    "users_id": [str(conn.user.id) for conn in self.connections]
+                }))
+            except Exception:
+                disconnected.append(connection)
+
+        for dead_conn in disconnected:
+            if dead_conn in self.connections:
+                self.connections.remove(dead_conn)
+
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         user_id = self.user.id
-        type = text_data_json['type']
+        msg_type = text_data_json['type']
         chatroom_id = text_data_json['chatroom_id']
-        if type == "typing":
+
+        if msg_type == "typing":
             await self.channel_layer.group_send(
                 self.group_name,
                 {
@@ -92,19 +114,23 @@ class PresenceConsumer(AsyncWebsocketConsumer):
                     'user_id': user_id
                 }
             )
-        elif type == "new_chat":
+        elif msg_type == "new_chat":
             await self.channel_layer.group_send(
                 self.group_name,
                 {
                     'type': 'new_chat',
-                    'creator': user_id,
+                    'creator_id': user_id,
                     'chatroom_id': chatroom_id
                 }
             )
 
     async def typing(self, event):
+        """
+        This method is called when a 'typing' event is dispatched by group_send.
+        """
         user_id = event['user_id']
         chatroom_id = event['chatroom_id']
+
         await self.send(text_data=json.dumps({
             'type': 'typing',
             'chatroom_id': chatroom_id,
@@ -112,11 +138,14 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         }))
 
     async def new_chat(self, event):
-        creator = event['creator_id']
+        """
+        This method is called when a 'new_chat' event is dispatched by group_send.
+        """
+        creator_id = event['creator_id']
         chatroom_id = event['chatroom_id']
+
         await self.send(text_data=json.dumps({
             'type': 'new_chat',
-            'creator_id': creator,
+            'creator_id': creator_id,
             'chatroom_id': chatroom_id
         }))
-
