@@ -79,7 +79,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('redis://red-cuc0cu1opnds738ro060', 6379)],  # ou l'IP/port de ton serveur Redis
+            'hosts': "redis://red-cuc0cu1opnds738ro060:6379"
         },
     },
 }
