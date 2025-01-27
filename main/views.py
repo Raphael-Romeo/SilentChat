@@ -244,6 +244,7 @@ def app_post_delete_self(request):
         if request.method == 'POST':
             user = User.objects.get(id=request.user.id)
             user.delete()
+            messages.success(request, 'You account is now deleted')
             return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
     return HttpResponseForbidden()
 
