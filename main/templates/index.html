@@ -11,8 +11,13 @@
                 <a href="/" id="title_link"><h2 id="main_title">SilentChat</h2></a>
                 <nav>
                     <div style="display:flex;gap:10px;">
-                        <a href="/login"><h2 class="menu">Login</h2></a>
-                        <a href="/signup"><h2 class="menu">Signup</h2></a>
+                        {% if user.is_authenticated %}
+                        <p style='color:white;font-family:arial;font-size:16px;'> Hello {{ user.username }} </p>
+                        <a href="/app"><h2 class="menu">Let's chat !</h2></a>
+                        {% else %}
+                            <a href="/login"><h2 class="menu">Login</h2></a>
+                            <a href="/signup"><h2 class="menu">Signup</h2></a>
+                        {% endif %}
                     </div>
                 </nav>
             </div>
