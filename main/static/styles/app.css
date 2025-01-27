@@ -993,6 +993,7 @@ body, .application-wrapper{
 	cursor:pointer;
 	transition:background 0.2s ease;
 	user-select:none;
+	color: var(--text-color);
 }
 
 .emoji-item:hover{
