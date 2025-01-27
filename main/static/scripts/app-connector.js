@@ -73,7 +73,11 @@ function post_group_chatroom(name, users){
     }));
 
     xhr.onload = () => {
-        //ON LOAD
+        let json_response = JSON.parse(xhr.responseText);
+        add_chatroom(json_response, true);
+        if(json_response.created){
+            send_new_chat_socket(json_response.id);
+        }
     }
 }
 
@@ -87,7 +91,7 @@ function post_delete_self(){
     xhr.send(null);
 
     xhr.onload = () => {
-        //ON LOAD
+        window.location.href = "/";
     }
 }
 

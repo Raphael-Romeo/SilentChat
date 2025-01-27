@@ -1033,3 +1033,41 @@ body, .application-wrapper{
 	opacity:1;
 	pointer-events:all;
 }
+
+.create-chat-room-form{
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	gap:20px;
+}
+
+.create-chat-room-input{
+	padding:10px;
+	border-radius:10px;
+	background:var(--primary-color);
+	color:var(--text-color);
+	outline:none;
+	border:1px var(--primary-color-very-transparent) solid;
+	font-family:arial;
+	font-size:16px;
+}
+
+.create-chat-room-input:focus{
+	border:1px solid var(--text-color-lighter);
+}
+
+.create-chat-room-input > option:checked{
+	font-weight:600;
+}
+
+.create-chat-room-input[type=submit]{
+	cursor:pointer;
+	font-weight:600;
+}
+
+.create-chat-room-input > option{
+	border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    margin-bottom: 5px;
+}

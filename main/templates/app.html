@@ -82,14 +82,13 @@
                             <div class="page-close-button" id="create-chat-room-page-close-button"><span class="material-symbols-outlined">close</span></div>
                             <h3 class="page-title"> Create chatroom </h3>
                             <hr class="page-hr">
-                            <form>
-                             <input type="text">
-                             <select name="cars" id="cars" multiple>
-                                <option value="volvo">Volvo</option>
-                                <option value="saab">Saab</option>
-                                <option value="opel">Opel</option>
-                                <option value="audi">Audi</option>
-                              </select>
+                            <form class="create-chat-room-form">
+                             <h3 class="settings-page-header"> Chatroom name </h3>
+                             <input class="create-chat-room-input" required placeholder="Chatroom name" type="text">
+                             <h3 class="settings-page-header"> Chatroom users </h3>
+                             <select class="create-chat-room-input" required id="create-chat-room-select-users" name="create-chat-room-select-users" multiple>
+                             </select>
+                             <input class="create-chat-room-input" type="submit" value="confirm">
                             </form>
                         </div>
                         <div id="friends-page" class="friends-page-wrapper page-wrapper-default">

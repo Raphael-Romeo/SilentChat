@@ -600,6 +600,7 @@ function set_friends(d){
         friend_elem.onclick = function(){
             post_user_chatroom(friend.id);
         }
+        document.getElementById("create-chat-room-select-users").innerHTML += "<option value='" + friend.id + "'>" + friend.username + "</option>"
         friend_elem.classList.add("friend-list-item");
         friend_elem.innerHTML = "<img class='direct-message-picture' src='" + friend.profile_picture + "'><div class='direct-message-user-h-wrapper'><span class='direct-message-name'>" + friend.username + "</span></div>";
         if (user_status_elems[friend.id] == undefined) user_status_elems[friend.id] = [];
@@ -721,6 +722,11 @@ onmousemove = function(e){
 document.getElementById("settings-button").onclick = function(){
     if (current_page == 0) return;
     set_page_view_transition(0);
+}
+
+document.getElementById("create-chatroom-button").onclick = function(){
+    if (current_page == 2) return;
+    set_page_view_transition(2);
 }
 
 document.getElementById("create-chat-room-page-button").onclick = function(){

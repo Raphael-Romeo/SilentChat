@@ -235,7 +235,13 @@ def app_post_group_chatroom(request):
                 user = User.objects.get(id=user_id)
                 group_chatroom.users.add(user)
             group_chatroom.save()
-            return HttpResponse(json.dumps({"id": chatroom.id}), content_type="application/json")
+            return HttpResponse(json.dumps({
+                "id": chatroom.id,
+                "name": group_chatroom.name,
+                "photo": group_chatroom.chat_picture.url,
+                "type": "group",
+                "created": True,
+            }), content_type="application/json")
     return HttpResponseForbidden()
 
 
