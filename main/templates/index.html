@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
     <head>
@@ -12,7 +13,7 @@
                 <nav>
                     <div style="display:flex;gap:10px;">
                         {% if user.is_authenticated %}
-                        <p style='color:white;font-family:arial;font-size:16px;'> Hello {{ user.username }} </p>
+                        <p class="menu"> Hello {{ user.username }} </p>
                         <a href="/app"><h2 class="menu">Let's chat !</h2></a>
                         {% else %}
                             <a href="/login"><h2 class="menu">Login</h2></a>
@@ -23,7 +24,9 @@
             </div>
            
         </header>
-        
+        {% for message in messages %}
+            <p class="notifications-index-page" style="color:red;">{{ message }}</p>
+        {% endfor %}
         <div id="presentation">
             <h1>SilentChat :&nbsp;A chatting app</h1>
         </div>

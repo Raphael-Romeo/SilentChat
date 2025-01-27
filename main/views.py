@@ -52,7 +52,7 @@ def login_user(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, 'You are now logged in')
+            # messages.success(request, 'You are now logged in')
             return HttpResponseRedirect("/app")
         else:
             messages.error(request, 'Invalid credentials')
@@ -250,6 +250,7 @@ def app_post_delete_self(request):
         if request.method == 'POST':
             user = User.objects.get(id=request.user.id)
             user.delete()
+            messages.success(request, 'You account is now deleted')
             return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
     return HttpResponseForbidden()
 

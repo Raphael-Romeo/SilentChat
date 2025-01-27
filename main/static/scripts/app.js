@@ -879,3 +879,7 @@ window.addEventListener('click', function(e){
         show_emoji_box(false);
     }
 });
+
+document.getElementById("settings-page-post-delete-self-button").onclick = function() {
+    post_delete_self();
+}
