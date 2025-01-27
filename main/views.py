@@ -39,7 +39,7 @@ def signup_user(request):
         user = User.objects.create_user(username, email, password)
         user.save()
         login_user(request)
-        return render(request, 'app.html')
+        return HttpResponseRedirect("/app")
     
     return render(request, 'register.html')
 
