@@ -1,6 +1,6 @@
 function new_websocket_messages(chatroom_id){
     return new WebSocket(
-        'wss://' + window.location.host + '/wss/app/socket/messages/' + chatroom_id + '/'
+        'wss://' + window.location.host + '/ws/app/socket/messages/' + chatroom_id + '/'
     );
 }
 
@@ -8,7 +8,7 @@ let chatSocket_app = null;
 
 function new_websocket_app(){
     let socket =  new WebSocket(
-        'wss://' + window.location.host + '/wss/app/socket/app/'
+        'wss://' + window.location.host + '/ws/app/socket/app/'
     );
     socket.onmessage = function(e){
         let data = JSON.parse(e.data);
