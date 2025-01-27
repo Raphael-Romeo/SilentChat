@@ -883,3 +883,14 @@ window.addEventListener('click', function(e){
 document.getElementById("settings-page-post-delete-self-button").onclick = function() {
     post_delete_self();
 }
+
+document.getElementById("create-chat-room-form").onsubmit = function(e){
+
+    let chatroom_name = document.getElementById('create-chat-room-input-chat-room-name').value;
+    let options = document.getElementById('create-chat-room-select-users').selectedOptions;
+    let values = Array.from(options).map(({ value }) => value);
+
+    post_group_chatroom(chatroom_name, values);
+    document.getElementById("create-chat-room-form").reset();
+    e.preventDefault();
+}
