@@ -52,7 +52,7 @@ def login_user(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, 'You are now logged in')
+            # messages.success(request, 'You are now logged in')
             return HttpResponseRedirect("/app")
         else:
             messages.error(request, 'Invalid credentials')
