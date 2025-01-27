@@ -38,9 +38,8 @@ def signup_user(request):
         
         user = User.objects.create_user(username, email, password)
         user.save()
-        messages.success(request, 'You are now registered and can log in')
-        # login(request, user)
-        return render(request, 'index.html')
+        login_user(request)
+        return render(request, 'app.html')
     
     return render(request, 'register.html')
 
