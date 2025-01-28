@@ -7,11 +7,26 @@ from django.db.models import Q
 from datetime import datetime
 from .models import *
 import json
+import os
 
 
 # index page view, index.html located in templates
 def home(request):
     return render(request, 'index.html')
+
+def media(request, file_path=None):
+    from django.conf import settings as cfg
+    media_root = getattr(cfg, 'MEDIA_ROOT', None)
+
+    if not media_root:
+        return HttpResponseNotFound("MEDIA_ROOT not set in settings.py")
+    if not file_path:
+        return HttpResponseNotFound("File path not provided")
+    
+    with open(os.path.join(media_root, file_path), 'rb') as doc:
+        response =  HttpResponse(doc.read(), content_type='appplication/doc')
+        response['Content-Disposition'] = 'filename=%s' % (file_path.split('/')[-1])
+        return response
 
 # Login is required to access this view.
 def app(request):
@@ -65,7 +80,20 @@ def logout_user(request):
     return render(request, 'index.html')
 
 
-
+def get_groupchat_name(gc, user=None):
+    chatname = gc.name
+    users = gc.users.all()
+    users.remove(user)
+    if users.length > 0:
+        chatname += " ( "
+        for i in range(0, users.length):
+            user = users[i]
+            chatname += user.username
+            if i+1 < users.length:
+                chatname += " & " 
+            else:
+                chatname += " )"
+    return chatname
 # API TYPE CALLS (Functions here return JSON data).
 
 def app_get_user_details(request):
@@ -97,9 +125,10 @@ def app_get_user_details(request):
 
         for chat in GroupChats:
             last_message_date = chat.chat_room.last_message_date
+            chatname = get_groupchat_name(chat, request.user)
             serialized_user_chats.append({
                 "id": chat.chat_room.id,
-                "name": chat.name,
+                "name": chatname,
                 "photo": chat.chat_picture.url,
                 "type": "group",
                 "last_message_date": last_message_date
@@ -234,9 +263,10 @@ def app_post_group_chatroom(request):
                 user = User.objects.get(id=user_id)
                 group_chatroom.users.add(user)
             group_chatroom.save()
+            chatname = get_groupchat_name(group_chatroom, request.user)
             return HttpResponse(json.dumps({
                 "id": chatroom.id,
-                "name": group_chatroom.name,
+                "name": chatname,
                 "photo": group_chatroom.chat_picture.url,
                 "type": "group",
                 "created": True,
