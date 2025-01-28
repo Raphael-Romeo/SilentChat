@@ -83,12 +83,14 @@ def logout_user(request):
 def get_groupchat_name(gc, user=None):
     chatname = gc.name
     users = gc.users.all()
-    if users.length > 0:
+    if user is not None:
+        users.remove(user)
+    if len(users) > 0:
         chatname += " ( "
-        for i in range(0, users.length):
+        for i in range(0, len(users)):
             user = users[i]
             chatname += user.username
-            if i+1 < users.length:
+            if i+1 < len(users):
                 chatname += " & " 
             else:
                 chatname += " )"
