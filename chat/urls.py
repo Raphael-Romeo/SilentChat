@@ -27,4 +27,4 @@ urlpatterns = [
     re_path(r'^main/media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     # Path for favicon
     path('favicon.ico', serve, {'path': 'favicon.ico', 'document_root': settings.STATIC_ROOT}),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
