@@ -206,7 +206,7 @@ def app_post_user_chatroom(request):
             }), content_type="application/json")
             else:
                 return HttpResponse(json.dumps({
-                "id": chat_room_exists[0].id,
+                "id": chat_room_exists[0].chat_room.id,
                 "user": {
                     "id": user_B.id,
                     "username": user_B.username
